@@ -1,0 +1,1 @@
+/home/diegous/.mozilla/firefox/gn657jbv.default-1436199914102/gm_scripts/Decorator/Decorator.user.js
