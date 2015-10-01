@@ -67,8 +67,14 @@ function getIMDbIDFromIMDb(movieNode){
     var data = {
         url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+movieNode.getTitle(),
         callback: function (response) {
-            var regex = /title\/(tt\d{7})\//g;
-            var movieID = response.response.match(regex)[1].substring(6,15);
+            // Obetner el ID con XPath
+            var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
+            var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+            var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
+
+            // Obtener el ID con expresión regular
+            // var regex = /title\/(tt\d{7})\//g;
+            // var movieID = response.response.match(regex)[1].substring(6,15);
             movieNode.appendIMDBNode(movieID);
         }
     };
