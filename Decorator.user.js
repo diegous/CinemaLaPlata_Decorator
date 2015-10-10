@@ -2,7 +2,7 @@
 // @name        Decorator
 // @namespace   info.unlp.edu.ar
 // @description Webpage enhancer (?)
-// @include     http://cinemalaplata.com/*
+// @include     http://cinemalaplata.com/Cartelera.aspx*
 // @include     file://*
 // @version     1
 // @grant       GM_xmlhttpRequest
