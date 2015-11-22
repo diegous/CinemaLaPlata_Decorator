@@ -1,0 +1,112 @@
+/*
+
+demonstration.css
+
+Stylesheet for the demonstration of touch-friendly drop-down menus
+
+Created by Stephen Morley - http://code.stephenmorley.org/ - and released under
+the terms of the CC0 1.0 Universal legal code:
+
+http://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+*/
+
+#demonstration > div{
+  width  : 30em;
+  margin : 0 auto 1.5em;
+}
+
+#dropdownCentred{
+  text-align : center;
+}
+
+#dropdownCentred > li{
+  text-align : left;
+}
+
+.dropdown,
+.dropdown ul{
+  border     : 1px solid rgb(96,144,48);
+  background : rgb(128,192,64);
+  box-shadow : 0 0 4px rgba(0,0,0,0.25);
+}
+
+.dropdown ul{
+  left : -1px;
+}
+
+[dir=rtl] .dropdown ul{
+  right : -1px;
+}
+
+.dropdownVertical ul{
+  left : 100%;
+}
+
+.dropdown ul ul,
+.dropdownVertical ul{
+  top : -1px;
+}
+
+.dropdown span{
+  color       : white;
+  font-family : 'Patua One',sans-serif;
+  line-height : 2em;
+  text-shadow : 0 0 0.125em rgba(0,0,0,0.25);
+  cursor      : pointer;
+  transition  : background 0.2s;
+}
+
+.dropdown li:hover > span,
+.dropdown li.dropdownOpen > span{
+  background-color : rgb(160,208,112);
+}
+
+.dropdown > li > span{
+  padding    : 0 24px 0 0.5em;
+  background : url('arrow-down.svg') no-repeat right 13px;
+}
+
+[dir=rtl] .dropdown > li > span{
+  padding    : 0 0.5em 0 24px;
+  background : url('arrow-down.svg') no-repeat left 13px;
+}
+
+.dropdownVertical > li > span,
+.dropdown ul span{
+  padding    : 0 26px 0 0.5em;
+  background : url('arrow-right.svg') no-repeat right 11px;
+}
+
+[dir=rtl] .dropdown ul span{
+  padding    : 0 0.5em 0 26px;
+  background : url('arrow-left.svg') no-repeat left 11px;
+}
+
+.dropdown ul ul ul span,
+[dir=rtl] .dropdown ul ul ul span{
+  padding          : 0 0.5em;
+  background-image : none;
+}
+
+#dropdownMegaMenu li > div{
+  width   : 16em;
+  padding : 0.5em;
+}
+
+#dropdownMegaMenu li > div > div{
+  float : left;
+}
+
+#dropdownMegaMenu table{
+  margin : 0 auto 0 0;
+}
+
+#dropdownMegaMenu th,
+#dropdownMegaMenu td{
+  padding     : 0 0 0 0.5em;
+  color       : white;
+  font-family : 'Patua One',sans-serif;
+  text-align  : left;
+  text-shadow : 0 0 0.125em rgba(0,0,0,0.25);
+}

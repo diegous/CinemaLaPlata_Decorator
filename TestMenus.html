@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="Dropdown.css">
+    <link rel="stylesheet" type="text/css" href="demonstration.css">
+    <script type="text/javascript" src="Dropdown.js"></script>
+</head>
+<body>
+    <ul class="dropdown">
+        <li class="">
+            <span>Menu</span>
+            <ul>
+                <li >
+                    <span>IMDb</span>
+                    <ul>
+                        <li class="">
+                            <span>Puntaje de IMDb</span>
+                        </li>
+                        <li class="">
+                            <span>Premios</span>
+                        </li>
+                        <li class="">
+                            <span>Ficha Director</span>
+                        </li>
+                    </ul>
+                </li>
+                <li class="">
+                    <span>Mercado Libre</span>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul>
+        <li class="peli">
+            Peli-1
+        </li>
+        <li class="peli">
+            Peli-2
+        </li>
+    </ul>
+</body>
+<script type="text/javascript">
+    decorators = {
+        type: "movie",
+        elements: 
+        [
+            {
+                name: "IMDB",
+                functions: [
+                    {
+                        description: "Puntaje de IMDb" ,
+                        method : function() {}
+                    },
+                    {
+                        description: "Premios",
+                        method : function () {}
+                    },
+                    {
+                        description: "Ficha de Director",
+                        method : function () {}
+                    }
+                ]
+            },
+            {
+                name: "Mercado Libre",
+                functions: [
+                    {
+                        "description": "Buscar Precios",
+                        method : function () {}
+                    }
+                ]
+            }
+        ]
+    };
+
+    peliculas = document.getElementsByClassName("peli");
+
+    for (i = 0; i < peliculas.length; i++){
+        var contenedorUlMenu = document.createElement("ul");
+        contenedorUlMenu.className = "dropdown";
+
+        var contenedorLiMenu = document.createElement("li");
+        contenedorUlMenu.appendChild(contenedorLiMenu);
+
+        var spanMenu = document.createElement("span");
+        contenedorLiMenu.appendChild(spanMenu);
+        spanMenu.appendChild(document.createTextNode("Menu"));
+
+        var listaDecoradores = document.createElement("ul");
+        contenedorLiMenu.appendChild(listaDecoradores);
+
+        for (j = 0; j < decorators.elements.length; j++){
+            var contenedorLiSubmenu = document.createElement("li");
+            listaDecoradores.appendChild(contenedorLiSubmenu);
+
+            var spanSubmenu = document.createElement("span");
+            contenedorLiSubmenu.appendChild(spanSubmenu);
+            spanSubmenu.appendChild(document.createTextNode(decorators.elements[j].name));
+
+            var listaMetodosDecoradores = document.createElement("ul");
+            contenedorLiSubmenu.appendChild(listaMetodosDecoradores);
+
+            for (k = 0; k < decorators.elements[j].functions.length; k++ ){
+                var contenedorLiFuncion = document.createElement("li");
+                listaMetodosDecoradores.appendChild(contenedorLiFuncion);
+
+                var spanFuncion = document.createElement("span");
+                contenedorLiFuncion.appendChild(spanFuncion);
+                spanFuncion.appendChild(document.createTextNode(decorators.elements[j].functions[k].description));
+                spanFuncion.onclick = function(){alert("hola")};
+            }
+        }
+
+        peliculas[i].appendChild(contenedorUlMenu);
+    }
+
+
+
+    // initialise the drop-down menus
+    Dropdown.initialise();
+</script>
+</html>
