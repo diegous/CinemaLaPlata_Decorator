@@ -51,15 +51,15 @@
                 functions: [
                     {
                         description: "Puntaje de IMDb" ,
-                        method : function() {}
+                        method : function() {alert("Puntaje")}
                     },
                     {
                         description: "Premios",
-                        method : function () {}
+                        method : function () {alert("Premios")}
                     },
                     {
                         description: "Ficha de Director",
-                        method : function () {}
+                        method : function () {alert("Ficha de Director")}
                     }
                 ]
             },
@@ -67,8 +67,8 @@
                 name: "Mercado Libre",
                 functions: [
                     {
-                        "description": "Buscar Precios",
-                        method : function () {}
+                        description: "Buscar Precios",
+                        method : function () {alert("Buscar Precios")}
                     }
                 ]
             }
@@ -77,43 +77,62 @@
 
     peliculas = document.getElementsByClassName("peli");
 
-    for (i = 0; i < peliculas.length; i++){
-        var contenedorUlMenu = document.createElement("ul");
-        contenedorUlMenu.className = "dropdown";
+    GuiManager = {
+        drawSubmenuItem: function(item){
+            var listItem = document.createElement("li");
 
-        var contenedorLiMenu = document.createElement("li");
-        contenedorUlMenu.appendChild(contenedorLiMenu);
+            var span = document.createElement("span");
+            listItem.appendChild(span);
+            span.appendChild(document.createTextNode(item.description));
+            span.onclick = item.method;
 
-        var spanMenu = document.createElement("span");
-        contenedorLiMenu.appendChild(spanMenu);
-        spanMenu.appendChild(document.createTextNode("Menu"));
+            return listItem;
+        },
 
-        var listaDecoradores = document.createElement("ul");
-        contenedorLiMenu.appendChild(listaDecoradores);
+        drawSubmenu: function(menuItem){
+            var subMenuItem = document.createElement("li");
 
-        for (j = 0; j < decorators.elements.length; j++){
-            var contenedorLiSubmenu = document.createElement("li");
-            listaDecoradores.appendChild(contenedorLiSubmenu);
-
-            var spanSubmenu = document.createElement("span");
-            contenedorLiSubmenu.appendChild(spanSubmenu);
-            spanSubmenu.appendChild(document.createTextNode(decorators.elements[j].name));
+            var span = document.createElement("span");
+            subMenuItem.appendChild(span);
+            span.appendChild(document.createTextNode(menuItem.name));
 
             var listaMetodosDecoradores = document.createElement("ul");
-            contenedorLiSubmenu.appendChild(listaMetodosDecoradores);
+            subMenuItem.appendChild(listaMetodosDecoradores);
 
-            for (k = 0; k < decorators.elements[j].functions.length; k++ ){
-                var contenedorLiFuncion = document.createElement("li");
-                listaMetodosDecoradores.appendChild(contenedorLiFuncion);
-
-                var spanFuncion = document.createElement("span");
-                contenedorLiFuncion.appendChild(spanFuncion);
-                spanFuncion.appendChild(document.createTextNode(decorators.elements[j].functions[k].description));
-                spanFuncion.onclick = function(){alert("hola")};
+            for (k = 0; k < menuItem.functions.length; k++ ){
+                var nodoFuncion = this.drawSubmenuItem(menuItem.functions[k]);
+                listaMetodosDecoradores.appendChild(nodoFuncion);
             }
-        }
 
-        peliculas[i].appendChild(contenedorUlMenu);
+            return subMenuItem;
+        },
+
+        drawMenu: function(submenuList){
+            var contenedorUlMenu = document.createElement("ul");
+            contenedorUlMenu.className = "dropdown";
+
+            var contenedorLiMenu = document.createElement("li");
+            contenedorUlMenu.appendChild(contenedorLiMenu);
+
+            var spanMenu = document.createElement("span");
+            contenedorLiMenu.appendChild(spanMenu);
+            spanMenu.appendChild(document.createTextNode("Menu"));
+
+            var listaDecoradores = document.createElement("ul");
+            contenedorLiMenu.appendChild(listaDecoradores);
+
+            for (j = 0; j < submenuList.elements.length; j++){
+                var submenu = this.drawSubmenu(submenuList.elements[j]);
+                listaDecoradores.appendChild(submenu);
+            }
+
+            return contenedorUlMenu;
+        }
+    }
+
+    for (i = 0; i < peliculas.length; i++){
+        var menu = GuiManager.drawMenu(decorators);
+        peliculas[i].appendChild(menu);
     }
 
 
