@@ -42,6 +42,16 @@
     </ul>
 </body>
 <script type="text/javascript">
+
+    aFunction = function(msg, htmlNode){
+        //alert(msg);
+        var a = document.createElement("a");
+        a.href = "www.google.com";
+        a.appendChild(document.createTextNode("Soy un link"));
+        htmlNode.style.color = "blue";
+        htmlNode.appendChild(a);
+    };
+
     decorators = {
         type: "movie",
         elements: 
@@ -51,15 +61,15 @@
                 functions: [
                     {
                         description: "Puntaje de IMDb" ,
-                        method : function() {alert("Puntaje")}
+                        method : aFunction
                     },
                     {
                         description: "Premios",
-                        method : function () {alert("Premios")}
+                        method : aFunction
                     },
                     {
                         description: "Ficha de Director",
-                        method : function () {alert("Ficha de Director")}
+                        method : aFunction
                     }
                 ]
             },
@@ -68,46 +78,44 @@
                 functions: [
                     {
                         description: "Buscar Precios",
-                        method : function () {alert("Buscar Precios")}
+                        method : aFunction
                     }
                 ]
             }
         ]
     };
 
-    peliculas = document.getElementsByClassName("peli");
-
     GuiManager = {
-        drawSubmenuItem: function(item){
+        drawSubmenuItem: function(item, htmlNode){
             var listItem = document.createElement("li");
 
             var span = document.createElement("span");
             listItem.appendChild(span);
             span.appendChild(document.createTextNode(item.description));
-            span.onclick = item.method;
+            span.onclick = function(){item.method(item.description, htmlNode)};
 
             return listItem;
         },
 
-        drawSubmenu: function(menuItem){
+        drawSubmenu: function(decorator, htmlNode){
             var subMenuItem = document.createElement("li");
 
             var span = document.createElement("span");
             subMenuItem.appendChild(span);
-            span.appendChild(document.createTextNode(menuItem.name));
+            span.appendChild(document.createTextNode(decorator.name));
 
             var listaMetodosDecoradores = document.createElement("ul");
             subMenuItem.appendChild(listaMetodosDecoradores);
 
-            for (k = 0; k < menuItem.functions.length; k++ ){
-                var nodoFuncion = this.drawSubmenuItem(menuItem.functions[k]);
+            for (aFunction of decorator.functions){
+                var nodoFuncion = this.drawSubmenuItem(aFunction, htmlNode);
                 listaMetodosDecoradores.appendChild(nodoFuncion);
             }
 
             return subMenuItem;
         },
 
-        drawMenu: function(submenuList){
+        drawMenu: function(htmlNode, decoratorList){
             var contenedorUlMenu = document.createElement("ul");
             contenedorUlMenu.className = "dropdown";
 
@@ -121,18 +129,19 @@
             var listaDecoradores = document.createElement("ul");
             contenedorLiMenu.appendChild(listaDecoradores);
 
-            for (j = 0; j < submenuList.elements.length; j++){
-                var submenu = this.drawSubmenu(submenuList.elements[j]);
+            for (decorator of decoratorList.elements){
+                var submenu = this.drawSubmenu(decorator, htmlNode);
                 listaDecoradores.appendChild(submenu);
             }
 
-            return contenedorUlMenu;
+            htmlNode.appendChild(contenedorUlMenu);
         }
     }
 
-    for (i = 0; i < peliculas.length; i++){
-        var menu = GuiManager.drawMenu(decorators);
-        peliculas[i].appendChild(menu);
+    conceptPelicula = document.getElementsByClassName("peli");
+
+    for (node of conceptPelicula){
+        GuiManager.drawMenu(node, decorators);
     }
 
 
