@@ -108,6 +108,7 @@
             subMenuItem.appendChild(listaMetodosDecoradores);
 
             for (aFunction of decorator.functions){
+                // aFunction.drawSubmenuItem(aFunction, htmlNode);
                 var nodoFuncion = this.drawSubmenuItem(aFunction, htmlNode);
                 listaMetodosDecoradores.appendChild(nodoFuncion);
             }
@@ -130,6 +131,7 @@
             contenedorLiMenu.appendChild(listaDecoradores);
 
             for (decorator of decoratorList.elements){
+                // decorator.drawSubmenu(decorator, htmlNode);
                 var submenu = this.drawSubmenu(decorator, htmlNode);
                 listaDecoradores.appendChild(submenu);
             }
@@ -144,6 +146,134 @@
         GuiManager.drawMenu(node, decorators);
     }
 
+    WebService = {
+        /*
+          FakeService
+        */    
+        concepts: function () {
+            elements = [{},{}];
+            return elements;
+        }
+    };
+    
+    DecoratorRepository = {
+        decorators: [{
+        type: "movie",
+        elements: [
+            {
+                name: "IMDB",
+                functions: [
+                    {
+                        description: "Puntaje de IMDb" ,
+                        method : aFunction
+                    },
+                    {
+                        description: "Premios",
+                        method : aFunction
+                    },
+                    {
+                        description: "Ficha de Director",
+                        method : aFunction
+                    }
+                ]
+            },
+            {
+                name: "Mercado Libre",
+                functions: [
+                    {
+                        description: "Buscar Precios",
+                        method : aFunction
+                    }
+                ]
+            }
+        ]
+        },
+        {
+            type: "song",
+            elements: [
+            ]
+        }],
+        getDecoratorsByConcept: function (aConcept) {
+            for (var i = this.decorators.length - 1; i >= 0; i--) {
+                if (this.decorators[i].type == aConcept.name) {
+                    return this.decorators[i].elements;
+                }
+            };
+            
+        }   
+    }
+
+    function HtmlNode (HTMLObject, properties) {
+        
+    }
+
+    function Concept (aJson) {
+        this.id = aJson.id;
+        this.name = aJson.name;
+        this.tags = aJson.tags;
+        this.xpath= aJson.xpath;
+        this.properties = aJson.properties;
+
+        this.createMenu = function () {
+            htmlNodes = [];
+
+            var htmlObjects = document.evaluate(this.xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+
+            for (int i=0; i < htmlObjects.snapshotLength; i++){
+                tmpNode = new HtmlNode(htmlObjects.snapshotItem(i), this.properties);
+                htmlNodes.push(tmpNode);
+            }
+
+        }   
+    }
+
+    function WebsiteConceptCollection(aJson){
+        this.name = aJson.name;
+        this.urlPattern = aJson.urlPattern;
+        this.concepts = [];
+        for (var i = aJson.concepts.length - 1; i >= 0; i--) {
+            this.concepts.push(new Concept(aJson.concepts[i]));
+        };
+
+        this.createMenu = function () {
+            for (var i = this.concepts.length - 1; i >= 0; i--) {
+                this.concepts[i].createMenu();
+            };
+        };
+    }
+
+    CCFactory = {
+        jsonList: [],
+        matchWithLocation: function (url) {
+            //retorna si la url coincide o aplica para la ubicacion(location.hostname)
+            return url == location.hostname;
+        },
+        getJsonConcepts: function () {
+            return this.jsonList.push(WebService.concepts());
+        },
+        initialize: function () {
+            this.jsonList = this.getJsonConcepts();
+            WCC = [];
+            for (var i = this.jsonList.length - 1; i >= 0; i--) {
+                if (this.matchWithLocation(this.jsonList[i].urlPattern)) {
+                    WCC.push(new WebsiteConceptCollection(this.jsonList[i]));
+                };
+            };
+
+            return WCC;
+        }
+    };
+
+    DecoratorManager = {
+        create: function (WCCList){
+            for (var i = WCCList.length - 1; i >= 0; i--) {
+                WCCList[i].createMenu();
+            };
+        }
+    }
+    
+    var WCCList = CCFactory.initialize();
+    DecoratorManager.create(WCCList);
 
 
     // initialise the drop-down menus
