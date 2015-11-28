@@ -33,7 +33,7 @@
     </ul>
 
     <ul>
-        <li class="peli">
+        <li class="peli" id="1111">
             <span>Peli-1</span>
             <p class="id">1</p>
         </li>
@@ -99,7 +99,7 @@
             var listaDecoradores = document.createElement("ul");
             contenedorLiMenu.appendChild(listaDecoradores);
 
-            for (decorator of decoratorList.elements){
+            for (decorator of decoratorList){
                 // decorator.drawSubmenu(decorator, htmlNode);
                 var submenu = this.drawSubmenu(decorator, htmlNode);
                 listaDecoradores.appendChild(submenu);
@@ -108,12 +108,6 @@
             htmlNode.appendChild(contenedorUlMenu);
         }
     }
-
-    // conceptPelicula = document.getElementsByClassName("peli");
-
-    // for (node of conceptPelicula){
-    //     GuiManager.drawMenu(node, decorators);
-    // }
 
     webserviceData = [
         {
@@ -221,11 +215,6 @@
         }
     }
 
-    function HtmlNode (htmlObject, properties) {
-        this.properties = properties;
-        this.htmlObject = htmlObject;
-    }
-
     function Concept (aJson) {
         this.id    = aJson.id;
         this.name  = aJson.name;
@@ -233,16 +222,26 @@
         this.xpath = aJson.xpath;
         this.properties = aJson.properties;
 
-        this.createMenu = function () {
-            var decorators = DecoratorRepository.getDecoratorsByConcept(this.name);
-
+        this.getNodes = function (){
             var htmlObjects = XpathHelper.getSnapshot(this.xpath);
+            var htmlNodes = [];
 
             for (var i = htmlObjects.snapshotLength - 1; i >= 0; i--) {
-                tmpNode = new HtmlNode(htmlObjects.snapshotItem(i), this.properties);
-                htmlNodes.push(tmpNode);
-
+                htmlObjects.snapshotItem(i).conceptProperties = this.properties;
+                htmlNodes.push(htmlObjects.snapshotItem(i));
             };
+
+            return htmlNodes;
+        }
+
+        this.createMenu = function () {
+            var decorators = DecoratorRepository.getDecoratorsByConcept(this);
+
+            for (node of this.getNodes()){
+                GuiManager.drawMenu(node, decorators);
+            }
+
+            console.log(this.htmlNodes);
         }
     }
 
