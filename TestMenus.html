@@ -34,10 +34,12 @@
 
     <ul>
         <li class="peli">
-            Peli-1
+            <span>Peli-1</span>
+            <p class="id">1</p>
         </li>
         <li class="peli">
-            Peli-2
+            <span>Peli-2</span>
+            <p class="id">2</p>
         </li>
     </ul>
 </body>
@@ -50,39 +52,6 @@
         a.appendChild(document.createTextNode("Soy un link"));
         htmlNode.style.color = "blue";
         htmlNode.appendChild(a);
-    };
-
-    decorators = {
-        type: "movie",
-        elements: 
-        [
-            {
-                name: "IMDB",
-                functions: [
-                    {
-                        description: "Puntaje de IMDb" ,
-                        method : aFunction
-                    },
-                    {
-                        description: "Premios",
-                        method : aFunction
-                    },
-                    {
-                        description: "Ficha de Director",
-                        method : aFunction
-                    }
-                ]
-            },
-            {
-                name: "Mercado Libre",
-                functions: [
-                    {
-                        description: "Buscar Precios",
-                        method : aFunction
-                    }
-                ]
-            }
-        ]
     };
 
     GuiManager = {
@@ -140,11 +109,54 @@
         }
     }
 
-    conceptPelicula = document.getElementsByClassName("peli");
+    // conceptPelicula = document.getElementsByClassName("peli");
 
-    for (node of conceptPelicula){
-        GuiManager.drawMenu(node, decorators);
-    }
+    // for (node of conceptPelicula){
+    //     GuiManager.drawMenu(node, decorators);
+    // }
+
+    webserviceData = [
+        {
+            "name": "Cartelera de Cinema La Plata",
+            "urlPattern": "http://cinemalaplata.com/cartelera.aspx",
+            "concepts": [
+                {
+                    "id": 1440162653658,
+                    "name": "Movie",
+                    "tags": ["movie"],
+                    "xpath": "//div[@class=\"page-container singlepost\"]",
+                    "properties": [
+                        {
+                            "id": 1440000442392,
+                            "name": "Title",
+                            "tags": ["title"],
+                            "xpath": ".//h4[@class=\"shortcodes-title\""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Sitio de prueba",
+            "urlPattern": "file:///D:/oo2/CinemaLaPlata_Decorator/TestMenus.html",
+            "concepts": [
+                {
+                    "id": 432432432,
+                    "name": "Pelicula",
+                    "tags": ["movie", "Peli"],
+                    "xpath": "//li[@class=\"peli\"]",
+                    "properties": [
+                        {
+                            "id": 43432,
+                            "name": "Title",
+                            "tags": ["title"],
+                            "xpath": "//p[@class=\"id\"]"
+                        }
+                    ]
+                }
+            ]
+        },
+    ];
 
     WebService = {
         /*
@@ -152,13 +164,13 @@
         */    
         concepts: function () {
             elements = [{},{}];
-            return elements;
+            return webserviceData;
         }
     };
     
     DecoratorRepository = {
         decorators: [{
-        type: "movie",
+        type: "Pelicula",
         elements: [
             {
                 name: "IMDB",
@@ -198,33 +210,40 @@
                 if (this.decorators[i].type == aConcept.name) {
                     return this.decorators[i].elements;
                 }
-            };
-            
-        }   
+            };   
+        }
     }
 
-    function HtmlNode (HTMLObject, properties) {
-        
+    XpathHelper = {
+        getSnapshot: function(xpath){
+            var htmlObjects = document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+            return htmlObjects;
+        }
+    }
+
+    function HtmlNode (htmlObject, properties) {
+        this.properties = properties;
+        this.htmlObject = htmlObject;
     }
 
     function Concept (aJson) {
-        this.id = aJson.id;
-        this.name = aJson.name;
-        this.tags = aJson.tags;
-        this.xpath= aJson.xpath;
+        this.id    = aJson.id;
+        this.name  = aJson.name;
+        this.tags  = aJson.tags;
+        this.xpath = aJson.xpath;
         this.properties = aJson.properties;
 
         this.createMenu = function () {
-            htmlNodes = [];
+            var decorators = DecoratorRepository.getDecoratorsByConcept(this.name);
 
-            var htmlObjects = document.evaluate(this.xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+            var htmlObjects = XpathHelper.getSnapshot(this.xpath);
 
-            for (int i=0; i < htmlObjects.snapshotLength; i++){
+            for (var i = htmlObjects.snapshotLength - 1; i >= 0; i--) {
                 tmpNode = new HtmlNode(htmlObjects.snapshotItem(i), this.properties);
                 htmlNodes.push(tmpNode);
-            }
 
-        }   
+            };
+        }
     }
 
     function WebsiteConceptCollection(aJson){
@@ -242,38 +261,48 @@
         };
     }
 
-    CCFactory = {
-        jsonList: [],
-        matchWithLocation: function (url) {
+    function CCFactory(){
+        this.jsonList = [];
+        this.siteUrl = null;
+
+        this.matchWithLocation = function (url) {
             //retorna si la url coincide o aplica para la ubicacion(location.hostname)
-            return url == location.hostname;
-        },
-        getJsonConcepts: function () {
-            return this.jsonList.push(WebService.concepts());
-        },
-        initialize: function () {
-            this.jsonList = this.getJsonConcepts();
-            WCC = [];
-            for (var i = this.jsonList.length - 1; i >= 0; i--) {
-                if (this.matchWithLocation(this.jsonList[i].urlPattern)) {
-                    WCC.push(new WebsiteConceptCollection(this.jsonList[i]));
+            return url == this.siteUrl;
+        };
+
+        this.getJsonConcepts = function () {
+            this.jsonList = WebService.concepts();
+        };
+
+        this.initialize = function () {
+            this.siteUrl = window.location.href;
+            this.getJsonConcepts();
+            wccList = [];
+
+            for (aJson of this.jsonList) {
+                if (this.matchWithLocation(aJson.urlPattern)) {
+                    wccList.push(new WebsiteConceptCollection(aJson));
                 };
             };
 
-            return WCC;
-        }
+            return wccList;
+        };
     };
 
     DecoratorManager = {
         create: function (WCCList){
-            for (var i = WCCList.length - 1; i >= 0; i--) {
-                WCCList[i].createMenu();
+            for (aWCC of WCCList) {
+                aWCC.createMenu();
             };
         }
     }
     
-    var WCCList = CCFactory.initialize();
-    DecoratorManager.create(WCCList);
+    var aCCFactory = new CCFactory();
+    wccList = aCCFactory.initialize();
+
+    DecoratorManager.create(wccList);
+
+
 
 
     // initialise the drop-down menus
