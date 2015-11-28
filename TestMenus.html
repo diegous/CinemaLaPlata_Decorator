@@ -5,6 +5,8 @@
     <link rel="stylesheet" type="text/css" href="Dropdown.css">
     <link rel="stylesheet" type="text/css" href="demonstration.css">
     <script type="text/javascript" src="Dropdown.js"></script>
+    <script type="text/javascript" src="webservice.js"></script>
+    <script type="text/javascript" src="DecoratorRepository.js"></script>
 </head>
 <body>
     <ul class="dropdown">
@@ -44,15 +46,6 @@
     </ul>
 </body>
 <script type="text/javascript">
-
-    aFunction = function(msg, htmlNode){
-        //alert(msg);
-        var a = document.createElement("a");
-        a.href = "www.google.com";
-        a.appendChild(document.createTextNode("Soy un link"));
-        htmlNode.style.color = "blue";
-        htmlNode.appendChild(a);
-    };
 
     GuiManager = {
         drawSubmenuItem: function(item, htmlNode){
@@ -109,120 +102,24 @@
         }
     }
 
-    webserviceData = [
-        {
-            "name": "Cartelera de Cinema La Plata",
-            "urlPattern": "http://cinemalaplata.com/cartelera.aspx",
-            "concepts": [
-                {
-                    "id": 1440162653658,
-                    "name": "Movie",
-                    "tags": ["movie"],
-                    "xpath": "//div[@class=\"page-container singlepost\"]",
-                    "properties": [
-                        {
-                            "id": 1440000442392,
-                            "name": "Title",
-                            "tags": ["title"],
-                            "xpath": ".//h4[@class=\"shortcodes-title\""
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Sitio de prueba",
-            "urlPattern": "file:///D:/oo2/CinemaLaPlata_Decorator/TestMenus.html",
-            "concepts": [
-                {
-                    "id": 432432432,
-                    "name": "Pelicula",
-                    "tags": ["movie", "Peli"],
-                    "xpath": "//li[@class=\"peli\"]",
-                    "properties": [
-                        {
-                            "id": 43432,
-                            "name": "Title",
-                            "tags": ["title"],
-                            "xpath": "//p[@class=\"id\"]"
-                        }
-                    ]
-                }
-            ]
-        },
-    ];
-
     WebService = {
         /*
-          FakeService
-        */    
+        * FakeService
+        */
         concepts: function () {
-            elements = [{},{}];
             return webserviceData;
         }
     };
-    
-    DecoratorRepository = {
-        decorators: [{
-        type: "Pelicula",
-        elements: [
-            {
-                name: "IMDB",
-                functions: [
-                    {
-                        description: "Puntaje de IMDb" ,
-                        method : aFunction
-                    },
-                    {
-                        description: "Premios",
-                        method : aFunction
-                    },
-                    {
-                        description: "Ficha de Director",
-                        method : aFunction
-                    }
-                ]
-            },
-            {
-                name: "Mercado Libre",
-                functions: [
-                    {
-                        description: "Buscar Precios",
-                        method : aFunction
-                    }
-                ]
-            }
-        ]
-        },
-        {
-            type: "song",
-            elements: [
-            ]
-        }],
-        getDecoratorsByConcept: function (aConcept) {
-            for (var i = this.decorators.length - 1; i >= 0; i--) {
-                if (this.decorators[i].type == aConcept.name) {
-                    return this.decorators[i].elements;
-                }
-            };   
-        }
-    }
 
     XpathHelper = {
-        getSnapshot: function(xpath){
+        getSnapshots: function(xpath){
             return document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         }
     }
 
     function Concept (aJson) {
-        this.id    = aJson.id;
-        this.name  = aJson.name;
-        this.tags  = aJson.tags;
-        this.xpath = aJson.xpath;
-        this.properties = aJson.properties;
-
-        this.getNodes = function (){
-            var htmlObjects = XpathHelper.getSnapshot(this.xpath);
+        aJson.getNodes = function (){
+            var htmlObjects = XpathHelper.getSnapshots(this.xpath);
             var htmlNodes = [];
 
             for (var i = htmlObjects.snapshotLength - 1; i >= 0; i--) {
@@ -233,27 +130,22 @@
             return htmlNodes;
         }
 
-        this.createMenu = function () {
-            var decorators = DecoratorRepository.getDecoratorsByConcept(this);
-
-            for (node of this.getNodes()){
-                GuiManager.drawMenu(node, decorators);
-            }
-
-            console.log(this.htmlNodes);
+        aJson.createMenu = function () {
+            var decorators = DecoratorRepository.getDecoratorsForConcept(this);
+            this.getNodes().forEach(function(node){GuiManager.drawMenu(node, decorators)});
         }
+
+        return aJson;
     }
 
     function WebsiteConceptCollection(aJson){
-        this.name = aJson.name;
-        this.urlPattern = aJson.urlPattern;
-        this.concepts = aJson.concepts.map(function(item){return new Concept(item)});
+        aJson.concepts = aJson.concepts.map(function(item){return Concept(item)});
 
-        this.createMenu = function () {
-            for (var i = this.concepts.length - 1; i >= 0; i--) {
-                this.concepts[i].createMenu();
-            };
+        aJson.createMenu = function () {
+            this.concepts.forEach(function(item){item.createMenu()});
         };
+
+        return aJson;
     }
 
     function CCFactory(){
@@ -276,7 +168,7 @@
 
             for (aJson of this.jsonList) {
                 if (this.matchWithLocation(aJson.urlPattern)) {
-                    wccList.push(new WebsiteConceptCollection(aJson));
+                    wccList.push(WebsiteConceptCollection(aJson));
                 };
             };
 
@@ -286,9 +178,7 @@
 
     DecoratorManager = {
         create: function (WCCList){
-            for (aWCC of WCCList) {
-                aWCC.createMenu();
-            };
+            WCCList.forEach(function(aWCC){aWCC.createMenu()});
         }
     }
     
@@ -296,9 +186,6 @@
     wccList = aCCFactory.initialize();
 
     DecoratorManager.create(wccList);
-
-
-
 
     // initialise the drop-down menus
     Dropdown.initialise();
