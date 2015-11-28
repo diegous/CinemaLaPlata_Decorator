@@ -210,8 +210,7 @@
 
     XpathHelper = {
         getSnapshot: function(xpath){
-            var htmlObjects = document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-            return htmlObjects;
+            return document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         }
     }
 
@@ -248,10 +247,7 @@
     function WebsiteConceptCollection(aJson){
         this.name = aJson.name;
         this.urlPattern = aJson.urlPattern;
-        this.concepts = [];
-        for (var i = aJson.concepts.length - 1; i >= 0; i--) {
-            this.concepts.push(new Concept(aJson.concepts[i]));
-        };
+        this.concepts = aJson.concepts.map(function(item){return new Concept(item)});
 
         this.createMenu = function () {
             for (var i = this.concepts.length - 1; i >= 0; i--) {
