@@ -7,7 +7,7 @@ aFunction = function(msg, htmlNode){
     htmlNode.appendChild(a);
 };
 
-DecoratorRepository = {
+var DecoratorRepository = {
         decorators: [{
         type: "Pelicula",
         elements: [
@@ -49,6 +49,6 @@ DecoratorRepository = {
                 if (this.decorators[i].type == aConcept.name) {
                     return this.decorators[i].elements;
                 }
-            };   
+            }
         }
     };

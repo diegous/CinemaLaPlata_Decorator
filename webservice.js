@@ -1,4 +1,4 @@
-webserviceData = [
+var webserviceData = [
         {
             "name": "Cartelera de Cinema La Plata",
             "urlPattern": "http://cinemalaplata.com/cartelera.aspx",
