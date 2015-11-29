@@ -47,14 +47,14 @@
 </body>
 <script type="text/javascript">
 
-    GuiManager = {
+    var GuiManager = {
         drawSubmenuItem: function(item, htmlNode){
             var listItem = document.createElement("li");
 
             var span = document.createElement("span");
             listItem.appendChild(span);
             span.appendChild(document.createTextNode(item.description));
-            span.onclick = function(){item.method(item.description, htmlNode)};
+            span.onclick = function(){item.method(item.description, htmlNode);};
 
             return listItem;
         },
@@ -69,7 +69,7 @@
             var listaMetodosDecoradores = document.createElement("ul");
             subMenuItem.appendChild(listaMetodosDecoradores);
 
-            for (aFunction of decorator.functions){
+            for (var aFunction of decorator.functions){
                 // aFunction.drawSubmenuItem(aFunction, htmlNode);
                 var nodoFuncion = this.drawSubmenuItem(aFunction, htmlNode);
                 listaMetodosDecoradores.appendChild(nodoFuncion);
@@ -92,7 +92,7 @@
             var listaDecoradores = document.createElement("ul");
             contenedorLiMenu.appendChild(listaDecoradores);
 
-            for (decorator of decoratorList){
+            for (var decorator of decoratorList){
                 // decorator.drawSubmenu(decorator, htmlNode);
                 var submenu = this.drawSubmenu(decorator, htmlNode);
                 listaDecoradores.appendChild(submenu);
@@ -100,9 +100,9 @@
 
             htmlNode.appendChild(contenedorUlMenu);
         }
-    }
+    };
 
-    WebService = {
+    var WebService = {
         /*
         * FakeService
         */
@@ -111,11 +111,11 @@
         }
     };
 
-    XpathHelper = {
+    var XpathHelper = {
         getSnapshots: function(xpath){
             return document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         }
-    }
+    };
 
     function Concept (aJson) {
         aJson.getNodes = function (){
@@ -125,24 +125,24 @@
             for (var i = htmlObjects.snapshotLength - 1; i >= 0; i--) {
                 htmlObjects.snapshotItem(i).conceptProperties = this.properties;
                 htmlNodes.push(htmlObjects.snapshotItem(i));
-            };
+            }
 
             return htmlNodes;
-        }
+        };
 
         aJson.createMenu = function () {
             var decorators = DecoratorRepository.getDecoratorsForConcept(this);
-            this.getNodes().forEach(function(node){GuiManager.drawMenu(node, decorators)});
-        }
+            this.getNodes().forEach(function(node){GuiManager.drawMenu(node, decorators);});
+        };
 
         return aJson;
     }
 
     function WebsiteConceptCollection(aJson){
-        aJson.concepts = aJson.concepts.map(function(item){return Concept(item)});
+        aJson.concepts = aJson.concepts.map(function(item){return Concept(item);});
 
         aJson.createMenu = function () {
-            this.concepts.forEach(function(item){item.createMenu()});
+            this.concepts.forEach(function(item){item.createMenu();});
         };
 
         return aJson;
@@ -164,26 +164,26 @@
         this.initialize = function () {
             this.siteUrl = window.location.href;
             this.getJsonConcepts();
-            wccList = [];
+            var wccList = [];
 
-            for (aJson of this.jsonList) {
+            for (var aJson of this.jsonList) {
                 if (this.matchWithLocation(aJson.urlPattern)) {
                     wccList.push(WebsiteConceptCollection(aJson));
-                };
-            };
+                }
+            }
 
             return wccList;
         };
-    };
-
-    DecoratorManager = {
-        create: function (WCCList){
-            WCCList.forEach(function(aWCC){aWCC.createMenu()});
-        }
     }
+
+    var DecoratorManager = {
+        create: function (WCCList){
+            WCCList.forEach(function(aWCC){aWCC.createMenu();});
+        }
+    };
     
     var aCCFactory = new CCFactory();
-    wccList = aCCFactory.initialize();
+    var wccList = aCCFactory.initialize();
 
     DecoratorManager.create(wccList);
 
