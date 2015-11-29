@@ -123,8 +123,9 @@
             var htmlNodes = [];
 
             for (var i = htmlObjects.snapshotLength - 1; i >= 0; i--) {
-                htmlObjects.snapshotItem(i).conceptProperties = this.properties;
-                htmlNodes.push(htmlObjects.snapshotItem(i));
+                var snapItem = htmlObjects.snapshotItem(i);
+                snapItem.conceptProperties = this.properties;
+                htmlNodes.push(snapItem);
             };
 
             return htmlNodes;
@@ -154,7 +155,7 @@
 
         this.matchWithLocation = function (url) {
             //retorna si la url coincide o aplica para la ubicacion(location.hostname)
-            return url == this.siteUrl;
+            return this.siteUrl.slice(0, url.length) == url;
         };
 
         this.getJsonConcepts = function () {
@@ -181,7 +182,7 @@
             WCCList.forEach(function(aWCC){aWCC.createMenu()});
         }
     }
-    
+
     var aCCFactory = new CCFactory();
     wccList = aCCFactory.initialize();
 
