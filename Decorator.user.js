@@ -157,6 +157,49 @@ function imdbRating(htmlNode){
     }
 }
 
+function imdbActors(htmlNode){
+
+    var appendData = function(htmlNode, data){
+        var p = document.createElement("p");
+        p.appendChild(document.createTextNode(data));
+
+        htmlNode.parentNode.insertBefore(p, htmlNode.nextSibling);
+    }
+    console.log(htmlNode.conceptImdbData);
+    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
+        appendData(htmlNode, "Actores: "+htmlNode.conceptImdbData.Actors);
+    } else {
+        var xpath = htmlNode.conceptProperties[1].xpath;
+        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+        var title = htmlObjects.snapshotItem(0).data;
+
+        var data = {
+            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
+            callback: function (response) {
+                // Obetner el ID con XPath
+                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
+                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
+
+
+                var moreData = {
+                    url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
+                    callback: function(response){
+                        var jsonResponse = JSON.parse(response.responseText);
+
+                        htmlNode.conceptImdbData = jsonResponse;
+                        appendData(htmlNode, "Actores: "+htmlNode.conceptImdbData.Actors);
+                    }
+                }
+
+                processRequests(moreData);
+            }
+        };
+
+        processRequests(data);
+    }
+}
+
 var DecoratorRepository = {
         decorators: [
             {
@@ -204,8 +247,8 @@ var DecoratorRepository = {
                                 method : imdbRating
                             },
                             {
-                                description: "Premios",
-                                method : aFunction
+                                description: "Actores",
+                                method : imdbActors
                             },
                             {
                                 description: "Ficha de Director",
