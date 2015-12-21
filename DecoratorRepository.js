@@ -8,42 +8,46 @@ aFunction = function(msg, htmlNode){
 };
 
 var DecoratorRepository = {
-        decorators: [{
-        type: "Pelicula",
-        elements: [
+        decorators: [
             {
-                name: "IMDB",
-                functions: [
+                type: "Pelicula",
+                elements: [
                     {
-                        description: "Puntaje de IMDb" ,
-                        method : aFunction
+                        name: "IMDB",
+                        functions: [
+                            {
+                                description: "Puntaje de IMDb" ,
+                                method : aFunction
+                            },
+                            {
+                                description: "Premios",
+                                method : aFunction
+                            },
+                            {
+                                description: "Ficha de Director",
+                                method : aFunction
+                            }
+                        ],
+                        applyTo: function(guiManager, htmlNode){
+                            guiManager.drawSubmenu(this, htmlNode);
+                        }
                     },
                     {
-                        description: "Premios",
-                        method : aFunction
-                    },
-                    {
-                        description: "Ficha de Director",
-                        method : aFunction
+                        name: "Mercado Libre",
+                        functions: [
+                            {
+                                description: "Buscar Precios",
+                                method : aFunction
+                            }
+                        ]
                     }
                 ]
             },
             {
-                name: "Mercado Libre",
-                functions: [
-                    {
-                        description: "Buscar Precios",
-                        method : aFunction
-                    }
-                ]
+                type: "song",
+                elements: []
             }
-        ]
-        },
-        {
-            type: "song",
-            elements: [
-            ]
-        }],
+        ],
         getDecoratorsForConcept: function (aConcept) {
             for (var i = this.decorators.length - 1; i >= 0; i--) {
                 if (this.decorators[i].type == aConcept.name) {

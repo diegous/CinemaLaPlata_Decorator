@@ -9,31 +9,7 @@
     <script type="text/javascript" src="DecoratorRepository.js"></script>
 </head>
 <body>
-    <ul class="dropdown">
-        <li class="">
-            <span>Menu</span>
-            <ul>
-                <li >
-                    <span>IMDb</span>
-                    <ul>
-                        <li class="">
-                            <span>Puntaje de IMDb</span>
-                        </li>
-                        <li class="">
-                            <span>Premios</span>
-                        </li>
-                        <li class="">
-                            <span>Ficha Director</span>
-                        </li>
-                    </ul>
-                </li>
-                <li class="">
-                    <span>Mercado Libre</span>
-                </li>
-            </ul>
-        </li>
-    </ul>
-
+    <h1>PELICULAS</h1>
     <ul>
         <li class="peli" id="1111">
             <span>Peli-1</span>
@@ -93,7 +69,7 @@
             contenedorLiMenu.appendChild(listaDecoradores);
 
             for (var decorator of decoratorList){
-                // decorator.drawSubmenu(decorator, htmlNode);
+                // decorator.drawSubmenu(htmlNode);
                 var submenu = this.drawSubmenu(decorator, htmlNode);
                 listaDecoradores.appendChild(submenu);
             }
