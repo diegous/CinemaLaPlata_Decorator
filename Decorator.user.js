@@ -4,9 +4,10 @@
 // @description Webpage enhancer (?)
 // @include     http://www.cinemalaplata.com/Cartelera.aspx*
 // @include     file://*
-// @version     2
+// @version     2.11
 // @grant       GM_xmlhttpRequest
 // @grant       GM_log
+// @require     http://code.stephenmorley.org/javascript/touch-friendly-drop-down-menus/Dropdown.js
 // ==/UserScript==
 
 // Esto es para que no se ejecute más de una vez al cargar una página 
@@ -15,15 +16,26 @@ if (window.top != window.self){  //-- Don't run on frames or iframes
     return;
 }
 
+// Agregar CSS de los menus
+var styleNode1 = document.createElement('link');
+styleNode1.href = "http://diegous.github.io/Dropdown.css";
+styleNode1.rel  = "stylesheet";
+styleNode1.type = "text/css";
+
+var styleNode2 = document.createElement('link');
+styleNode2.href = "http://diegous.github.io/demonstration.css";
+styleNode2.rel  = "stylesheet";
+styleNode2.type = "text/css";
+
+var documentHead = document.head || document.getElementsByTagName('head')[0];
+documentHead.appendChild(styleNode1);
+documentHead.appendChild(styleNode2);
+
 // **********************************************************
 // ************** ARCHIVOS EXTERNOS *************************
 // **********************************************************
-// Dropdown.js
-// @require     http://code.stephenmorley.org/javascript/touch-friendly-drop-down-menus/Dropdown.js
-var Dropdown=function(){function h(a){for(var b=!1,d=0;d<e.length;d++)e[d].isOpen&&(b=!0);if(b){for(a=a.target;null!=a;){if(/\bdropdown\b/.test(a.className))return;a=a.parentNode}f()}}function f(a){for(var b=0;b<e.length;b++)e[b]!=a&&e[b].close()}function g(a){"string"==typeof a&&(a=document.getElementById(a));e.push(new c(a))}function c(a){this.node=a;a.className+=" dropdownJavaScript";"addEventListener"in a?(a.addEventListener("mouseover",this.bind(this.handleMouseOver),!1),a.addEventListener("mouseout",this.bind(this.handleMouseOut),!1),a.addEventListener("click",this.bind(this.handleClick),!1)):(a.attachEvent("onmouseover",this.bind(this.handleMouseOver)),a.attachEvent("onmouseout",this.bind(this.handleMouseOut)),a.attachEvent("onclick",this.bind(this.handleClick)));"createTouch"in document&&a.addEventListener("touchstart",this.bind(this.handleClick),!1)}var e=[];c.prototype.isOpen=!1;c.prototype.timeout=null;c.prototype.bind=function(a){var b=this;return function(){a.apply(b,arguments)}};c.prototype.handleMouseOver=function(a,b){this.clearTimeout();var d="target"in a?a.target:a.srcElement;for(;"LI"!=d.nodeName&&d!=this.node;)d=d.parentNode;"LI"==d.nodeName&&(this.toOpen=d,this.timeout=window.setTimeout(this.bind(this.open),b?0:250))};c.prototype.handleMouseOut=function(){this.clearTimeout();this.timeout=window.setTimeout(this.bind(this.close),250)};c.prototype.handleClick=function(a){f(this);var b="target"in a?a.target:a.srcElement;for(;"LI"!=b.nodeName&&b!=this.node;)b=b.parentNode;"LI"==b.nodeName&&0<this.getChildrenByTagName(b,"UL").length&&!/\bdropdownOpen\b/.test(b.className)&&(this.handleMouseOver(a,!0),"preventDefault"in a?a.preventDefault():a.returnValue=!1)};c.prototype.clearTimeout=function(){this.timeout&&(window.clearTimeout(this.timeout),this.timeout=null)};c.prototype.open=function(){this.isOpen=!0;for(var a=this.getChildrenByTagName(this.toOpen.parentNode,"LI"),b=0;b<a.length;b++){var d=this.getChildrenByTagName(a[b],"UL");if(0<d.length)if(a[b]!=this.toOpen)a[b].className=a[b].className.replace(/\bdropdownOpen\b/g,""),this.close(a[b]);else if(!/\bdropdownOpen\b/.test(a[b].className)){a[b].className+=" dropdownOpen";for(var c=0,e=d[0];e;)c+=e.offsetLeft,e=e.offsetParent;right=c+d[0].offsetWidth;0>c&&(a[b].className+=" dropdownLeftToRight");right>document.body.clientWidth&&(a[b].className+=" dropdownRightToLeft")}}};c.prototype.close=function(a){a||(this.isOpen=!1,a=this.node);a=a.getElementsByTagName("li");for(var b=0;b<a.length;b++)a[b].className=a[b].className.replace(/\bdropdownOpen\b/g,"")};c.prototype.getChildrenByTagName=function(a,b){for(var d=[],c=0;c<a.childNodes.length;c++)a.childNodes[c].nodeName==b&&d.push(a.childNodes[c]);return d};return{initialise:function(){"createTouch"in document&&document.body.addEventListener("touchstart",h,!1);for(var a=document.querySelectorAll("ul.dropdown"),b=0;b<a.length;b++)g(a[b])},applyTo:g}}();
-
-// -------------------------------
 // webservice.js
+// @require     https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/webservice.js
 var webserviceData = [
         {
             "name": "Cartelera de Cinema La Plata",
@@ -54,7 +66,7 @@ var webserviceData = [
         },
         {
             "name": "Cartelera de Cinema La Plata",
-            "urlPattern": "file:///mnt/5F11BDC19A875904/oo2/CinemaLaPlata_Decorator/page.html",
+            "urlPattern": "file:///home/enrique/git/CinemaLaPlata_Decorator/page.html",
             "concepts": [
                 {
                     "id": 1440162653658,
@@ -81,11 +93,11 @@ var webserviceData = [
         },
         {
             "name": "Sitio de prueba",
-            "urlPattern": "file:///mnt/5F11BDC19A875904/oo2/CinemaLaPlata_Decorator/TestMenus2_sin_javascript.html",
+            "urlPattern": "file:///home/enrique/git/CinemaLaPlata_Decorator/TestMenus2_sin_javascript.html",
             "concepts": [
                 {
                     "id": 432432432,
-                    "name": "Pelicula",
+                    "name": "Movie",
                     "tags": ["movie", "Peli"],
                     "xpath": "//li[@class=\"peli\"]",
                     "mainProperty": "0",
@@ -104,6 +116,28 @@ var webserviceData = [
 
 // -------------------------------
 // DecoratorRepository.js
+// @require     https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/DecoratorRepository.js
+function processRequests(data) {
+    GM_xmlhttpRequest({
+        method: "GET",
+        url: data.url,
+        headers: {"Accept": "application/json"},
+        // synchronous: true,
+        // synchronous: false,
+        onload: function(response) {
+            data.callback(response);
+        }
+    });
+}
+
+
+function appendData(htmlNode, data){
+    var newNode = document.createElement("div");
+    newNode.appendChild(data);
+
+    htmlNode.parentNode.insertBefore(newNode, htmlNode.nextSibling);
+}
+
 aFunction = function(htmlNode){
     //alert(msg);
     var a = document.createElement("a");
@@ -115,22 +149,15 @@ aFunction = function(htmlNode){
 };
 
 function imdbRating(htmlNode){
-
-    var appendData = function(htmlNode, data){
-        var p = document.createElement("p");
-        p.appendChild(document.createTextNode(data));
-
-        htmlNode.parentNode.insertBefore(p, htmlNode.nextSibling);
-    }
     
     if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-        appendData(htmlNode, "Puntaje IMDB: "+htmlNode.conceptImdbData.imdbRating);
+        appendData(htmlNode, document.createTextNode("Puntaje IMDB: "+htmlNode.conceptImdbData.imdbRating));
     } else {
         var xpath = htmlNode.conceptProperties[1].xpath;
         var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
         var title = htmlObjects.snapshotItem(0).data;
 
-        var data = {
+        var findImdbId = {
             url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
             callback: function (response) {
                 // Obetner el ID con XPath
@@ -138,42 +165,34 @@ function imdbRating(htmlNode){
                 var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
                 var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
 
-
-                var moreData = {
+                var getImdbData = {
                     url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
                     callback: function(response){
                         var jsonResponse = JSON.parse(response.responseText);
 
                         htmlNode.conceptImdbData = jsonResponse;
-                        appendData(htmlNode, "Puntaje IMDB: "+htmlNode.conceptImdbData.imdbRating);
+                        appendData(htmlNode, document.createTextNode("Puntaje IMDB: "+htmlNode.conceptImdbData.imdbRating));
                     }
                 }
 
-                processRequests(moreData);
+                processRequests(getImdbData);
             }
         };
 
-        processRequests(data);
+        processRequests(findImdbId);
     }
 }
 
 function imdbActors(htmlNode){
-
-    var appendData = function(htmlNode, data){
-        var p = document.createElement("p");
-        p.appendChild(document.createTextNode(data));
-
-        htmlNode.parentNode.insertBefore(p, htmlNode.nextSibling);
-    }
     
     if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-        appendData(htmlNode, "Actores: "+htmlNode.conceptImdbData.Actors);
+        appendData(htmlNode, document.createTextNode("Actores: "+htmlNode.conceptImdbData.Actors));
     } else {
         var xpath = htmlNode.conceptProperties[1].xpath;
         var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
         var title = htmlObjects.snapshotItem(0).data;
 
-        var data = {
+        var findImdbId = {
             url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
             callback: function (response) {
                 // Obetner el ID con XPath
@@ -181,61 +200,108 @@ function imdbActors(htmlNode){
                 var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
                 var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
 
-
-                var moreData = {
+                var getImdbData = {
                     url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
                     callback: function(response){
                         var jsonResponse = JSON.parse(response.responseText);
 
                         htmlNode.conceptImdbData = jsonResponse;
-                        appendData(htmlNode, "Actores: "+htmlNode.conceptImdbData.Actors);
+                        appendData(htmlNode, document.createTextNode("Actores: "+htmlNode.conceptImdbData.Actors));
                     }
                 }
 
-                processRequests(moreData);
+                processRequests(getImdbData);
             }
         };
 
-        processRequests(data);
+        processRequests(findImdbId);
     }
+}
+
+function imdbInternationalTitle(htmlNode){
+    
+    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
+        appendData(htmlNode, document.createTextNode("Título Internacional: "+htmlNode.conceptImdbData.Title));
+    } else {
+        var xpath = htmlNode.conceptProperties[1].xpath;
+        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+        var title = htmlObjects.snapshotItem(0).data;
+
+        var findImdbId = {
+            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
+            callback: function (response) {
+                // Obetner el ID con XPath
+                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
+                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
+
+                var getImdbData = {
+                    url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
+                    callback: function(response){
+                        var jsonResponse = JSON.parse(response.responseText);
+
+                        htmlNode.conceptImdbData = jsonResponse;
+                        appendData(htmlNode, document.createTextNode("Título Internacional: "+htmlNode.conceptImdbData.Title));
+                    }
+                }
+
+                processRequests(getImdbData);
+            }
+        };
+
+        processRequests(findImdbId);
+    }
+}
+
+function trailerAddict(htmlNode){
+    /*
+    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
+        appendData(htmlNode, "Título Internacional: "+htmlNode.conceptImdbData.Actors);
+    } else {*/
+        var xpath = htmlNode.conceptProperties[1].xpath;
+        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+        var title = htmlObjects.snapshotItem(0).data;
+
+        var findImdbId = {
+            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
+            callback: function (response) {
+                // Obetner el ID con XPath
+                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
+                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
+                        console.log("loquillo");
+
+                var getImdbData = {
+                    url: 'http://api.traileraddict.com/?imdb='+movieID.slice(2),
+                    callback: function(response){
+                        console.log(response.responseText);
+                        console.log("en callback");
+                        var regex = /v.traileraddict.com\/(\d*)/;
+                        var regexResult = regex.exec(response.responseText);
+                        var trailerId = regexResult[1];
+                        console.log("trailer id : "+trailerId);
+
+                        var newNode = document.createElement("iframe");
+                        newNode.setAttribute("src", "http://v.traileraddict.com/"+trailerId);
+                        newNode.setAttribute("height", "270");
+                        newNode.setAttribute("width", "480");
+
+                        console.log(newNode);
+
+                        appendData(htmlNode, newNode);
+                    }
+                }
+
+                processRequests(getImdbData);
+            }
+        };
+
+        processRequests(findImdbId);
+    //}
 }
 
 var DecoratorRepository = {
         decorators: [
-            {
-                type: "Pelicula",
-                elements: [
-                    {
-                        name: "IMDB",
-                        functions: [
-                            {
-                                description: "Puntaje de IMDb" ,
-                                method : aFunction
-                            },
-                            {
-                                description: "Premios",
-                                method : aFunction
-                            },
-                            {
-                                description: "Ficha de Director",
-                                method : aFunction
-                            }
-                        ],
-                        applyTo: function(guiManager, htmlNode){
-                            guiManager.drawSubmenu(this, htmlNode);
-                        }
-                    },
-                    {
-                        name: "Mercado Libre",
-                        functions: [
-                            {
-                                description: "Buscar Precios",
-                                method : aFunction
-                            }
-                        ]
-                    }
-                ]
-            },
             {
                 type: "Movie",
                 elements: [
@@ -251,8 +317,8 @@ var DecoratorRepository = {
                                 method : imdbActors
                             },
                             {
-                                description: "Ficha de Director",
-                                method : aFunction
+                                description: "Título Internacional",
+                                method : imdbInternationalTitle
                             }
                         ],
                         applyTo: function(guiManager, htmlNode){
@@ -260,11 +326,11 @@ var DecoratorRepository = {
                         }
                     },
                     {
-                        name: "Mercado Libre",
+                        name: "Trailer Addict",
                         functions: [
                             {
-                                description: "Buscar Precios",
-                                method : aFunction
+                                description: "Buscar Trailer",
+                                method : trailerAddict
                             }
                         ]
                     }
@@ -450,50 +516,6 @@ Dropdown.initialise();
 // -------------------------------------------------
 // -----------------   FUNCIONES   -----------------
 // -------------------------------------------------
-
-
-function getTitleElementsFromCinemaLaPlata(){
-    return document.evaluate('//div[@class="page-container singlepost"]/h4[@class="shortcodes-title"]', document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null)
-}
-
-function getIMDbIDFromXML(xmlIMDbResponse){
-    var movieID = xmlIMDbResponse.evaluate('//ImdbEntity/@id', xmlIMDbResponse, null, XPathResult.STRING_TYPE, null).stringValue;
-    return movieID;
-}
-
-function getIMDbID(movieNode){
-    var data = {
-        url: "http://www.imdb.com/xml/find?xml=1&nr=1&tt=on&q="+movieNode.getTitle(),
-        callback: function (response) {
-            // Obtener ID de película
-            responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
-            var movieID = getIMDbIDFromXML(responseXML);
-            movieNode.appendIMDBNode(movieID);
-        }
-    };
-
-    processRequests(data);
-}
-
-function getIMDbIDFromIMDb(movieNode){
-    var data = {
-        url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+movieNode.getTitle(),
-        callback: function (response) {
-            // Obetner el ID con XPath
-            var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-            var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-            var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
-
-            // Obtener el ID con expresión regular
-            // var regex = /title\/(tt\d{7})\//g;
-            // var movieID = response.response.match(regex)[1].substring(6,15);
-            movieNode.appendIMDBNode(movieID);
-        }
-    };
-
-    processRequests(data);
-}
-
 function getMLPrices(movieNode) {
     var data = {
         url: "https://api.mercadolibre.com/sites/MLA/search?category=MLA13508&q="+movieNode.getTitle(),
@@ -506,38 +528,3 @@ function getMLPrices(movieNode) {
 
     processRequests(data);    
 }
-
-function processRequests(data) {
-    GM_xmlhttpRequest({
-        method: "GET",
-        url: data.url,
-        headers: {"Accept": "application/json"},
-        // synchronous: true,
-        // synchronous: false,
-        onload: function(response) {
-            data.callback(response);
-        }
-    });
-}
-
-// MovieNode Class
-function MovieNode(movieNode){
-    this.htmlNode = movieNode;
-    
-    this.getTitle = function () {
-        // movieNode.childNodes[1].childNodes[1].textContent
-        return this.htmlNode.childNodes[1].childNodes[1].textContent;
-    }
-
-    this.appendIMDBNode = function (id) {
-        // movieNode.childNodes[1].appendChild(node);
-        var textNode = document.createTextNode("IMDb link");
-        var node = document.createElement("a");
-        node.appendChild(textNode);
-        node.setAttribute("href", "http://www.imdb.com/title/"+id);
-        // node.setAttribute("href", "http://www.imdb.com/"+id);
-        return this.htmlNode.childNodes[1].appendChild(node);
-    } 
-}
-
-
