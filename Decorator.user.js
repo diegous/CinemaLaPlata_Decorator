@@ -4,32 +4,28 @@
 // @description Webpage enhancer (?)
 // @include     http://www.cinemalaplata.com/Cartelera.aspx*
 // @include     file://*
-// @version     2.11
+// @version     2.113
 // @grant       GM_xmlhttpRequest
 // @grant       GM_log
+// @grant       GM_getResourceText
+// @grant       GM_addStyle
 // @require     http://code.stephenmorley.org/javascript/touch-friendly-drop-down-menus/Dropdown.js
+// @require     http://diegous.github.io/DecoratorRepository.js
+// @resource    DropdownStyle https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/Dropdown.css
+// @resource    DemonstrationStyle https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/demonstration.css
 // ==/UserScript==
+
+// Agregar CSS de los menus
+var css1 = GM_getResourceText("DropdownStyle");
+var css2 = GM_getResourceText("DemonstrationStyle");
+GM_addStyle(css1);
+GM_addStyle(css2);
 
 // Esto es para que no se ejecute más de una vez al cargar una página 
 // http://stackoverflow.com/questions/5876874/why-does-jquery-load-twice-in-my-greasemonkey-script
 if (window.top != window.self){  //-- Don't run on frames or iframes
     return;
 }
-
-// Agregar CSS de los menus
-var styleNode1 = document.createElement('link');
-styleNode1.href = "http://diegous.github.io/Dropdown.css";
-styleNode1.rel  = "stylesheet";
-styleNode1.type = "text/css";
-
-var styleNode2 = document.createElement('link');
-styleNode2.href = "http://diegous.github.io/demonstration.css";
-styleNode2.rel  = "stylesheet";
-styleNode2.type = "text/css";
-
-var documentHead = document.head || document.getElementsByTagName('head')[0];
-documentHead.appendChild(styleNode1);
-documentHead.appendChild(styleNode2);
 
 // **********************************************************
 // ************** ARCHIVOS EXTERNOS *************************
@@ -114,242 +110,6 @@ var webserviceData = [
         },
     ];
 
-// -------------------------------
-// DecoratorRepository.js
-// @require     https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/DecoratorRepository.js
-function processRequests(data) {
-    GM_xmlhttpRequest({
-        method: "GET",
-        url: data.url,
-        headers: {"Accept": "application/json"},
-        // synchronous: true,
-        // synchronous: false,
-        onload: function(response) {
-            data.callback(response);
-        }
-    });
-}
-
-
-function appendData(htmlNode, data){
-    var newNode = document.createElement("div");
-    newNode.appendChild(data);
-
-    htmlNode.parentNode.insertBefore(newNode, htmlNode.nextSibling);
-}
-
-aFunction = function(htmlNode){
-    //alert(msg);
-    var a = document.createElement("a");
-    a.href = "www.google.com";
-    a.appendChild(document.createTextNode("Soy un link"));
-    htmlNode.style.color = "blue";
-    htmlNode.parentNode.insertBefore(a, htmlNode.nextSibling);
-    //htmlNode.appendChild(a);
-};
-
-function imdbRating(htmlNode){
-    
-    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-        appendData(htmlNode, document.createTextNode("Puntaje IMDB: "+htmlNode.conceptImdbData.imdbRating));
-    } else {
-        var xpath = htmlNode.conceptProperties[1].xpath;
-        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-        var title = htmlObjects.snapshotItem(0).data;
-
-        var findImdbId = {
-            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
-            callback: function (response) {
-                // Obetner el ID con XPath
-                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
-
-                var getImdbData = {
-                    url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
-                    callback: function(response){
-                        var jsonResponse = JSON.parse(response.responseText);
-
-                        htmlNode.conceptImdbData = jsonResponse;
-                        appendData(htmlNode, document.createTextNode("Puntaje IMDB: "+htmlNode.conceptImdbData.imdbRating));
-                    }
-                }
-
-                processRequests(getImdbData);
-            }
-        };
-
-        processRequests(findImdbId);
-    }
-}
-
-function imdbActors(htmlNode){
-    
-    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-        appendData(htmlNode, document.createTextNode("Actores: "+htmlNode.conceptImdbData.Actors));
-    } else {
-        var xpath = htmlNode.conceptProperties[1].xpath;
-        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-        var title = htmlObjects.snapshotItem(0).data;
-
-        var findImdbId = {
-            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
-            callback: function (response) {
-                // Obetner el ID con XPath
-                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
-
-                var getImdbData = {
-                    url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
-                    callback: function(response){
-                        var jsonResponse = JSON.parse(response.responseText);
-
-                        htmlNode.conceptImdbData = jsonResponse;
-                        appendData(htmlNode, document.createTextNode("Actores: "+htmlNode.conceptImdbData.Actors));
-                    }
-                }
-
-                processRequests(getImdbData);
-            }
-        };
-
-        processRequests(findImdbId);
-    }
-}
-
-function imdbInternationalTitle(htmlNode){
-    
-    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-        appendData(htmlNode, document.createTextNode("Título Internacional: "+htmlNode.conceptImdbData.Title));
-    } else {
-        var xpath = htmlNode.conceptProperties[1].xpath;
-        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-        var title = htmlObjects.snapshotItem(0).data;
-
-        var findImdbId = {
-            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
-            callback: function (response) {
-                // Obetner el ID con XPath
-                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
-
-                var getImdbData = {
-                    url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
-                    callback: function(response){
-                        var jsonResponse = JSON.parse(response.responseText);
-
-                        htmlNode.conceptImdbData = jsonResponse;
-                        appendData(htmlNode, document.createTextNode("Título Internacional: "+htmlNode.conceptImdbData.Title));
-                    }
-                }
-
-                processRequests(getImdbData);
-            }
-        };
-
-        processRequests(findImdbId);
-    }
-}
-
-function trailerAddict(htmlNode){
-    /*
-    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-        appendData(htmlNode, "Título Internacional: "+htmlNode.conceptImdbData.Actors);
-    } else {*/
-        var xpath = htmlNode.conceptProperties[1].xpath;
-        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-        var title = htmlObjects.snapshotItem(0).data;
-
-        var findImdbId = {
-            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
-            callback: function (response) {
-                // Obetner el ID con XPath
-                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
-                        console.log("loquillo");
-
-                var getImdbData = {
-                    url: 'http://api.traileraddict.com/?imdb='+movieID.slice(2),
-                    callback: function(response){
-                        console.log(response.responseText);
-                        console.log("en callback");
-                        var regex = /v.traileraddict.com\/(\d*)/;
-                        var regexResult = regex.exec(response.responseText);
-                        var trailerId = regexResult[1];
-                        console.log("trailer id : "+trailerId);
-
-                        var newNode = document.createElement("iframe");
-                        newNode.setAttribute("src", "http://v.traileraddict.com/"+trailerId);
-                        newNode.setAttribute("height", "270");
-                        newNode.setAttribute("width", "480");
-
-                        console.log(newNode);
-
-                        appendData(htmlNode, newNode);
-                    }
-                }
-
-                processRequests(getImdbData);
-            }
-        };
-
-        processRequests(findImdbId);
-    //}
-}
-
-var DecoratorRepository = {
-        decorators: [
-            {
-                type: "Movie",
-                elements: [
-                    {
-                        name: "IMDB",
-                        functions: [
-                            {
-                                description: "Puntaje de IMDb" ,
-                                method : imdbRating
-                            },
-                            {
-                                description: "Actores",
-                                method : imdbActors
-                            },
-                            {
-                                description: "Título Internacional",
-                                method : imdbInternationalTitle
-                            }
-                        ],
-                        applyTo: function(guiManager, htmlNode){
-                            guiManager.drawSubmenu(this, htmlNode);
-                        }
-                    },
-                    {
-                        name: "Trailer Addict",
-                        functions: [
-                            {
-                                description: "Buscar Trailer",
-                                method : trailerAddict
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                type: "song",
-                elements: []
-            }
-        ],
-        getDecoratorsForConcept: function (aConcept) {
-            for (var i = this.decorators.length - 1; i >= 0; i--) {
-                if (this.decorators[i].type == aConcept.name) {
-                    return this.decorators[i].elements;
-                }
-            }
-        }
-    };
-
 // **********************************************************
 // ************** fin archivos externos**********************
 // **********************************************************
@@ -414,6 +174,12 @@ var GuiManager = {
     }
 };
 
+var XpathHelper = {
+    getSnapshots: function(xpath, source){
+        return document.evaluate(xpath, source, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+    }
+};
+
 var WebService = {
     /*
     * FakeService
@@ -423,11 +189,7 @@ var WebService = {
     }
 };
 
-var XpathHelper = {
-    getSnapshots: function(xpath, source){
-        return document.evaluate(xpath, source, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-    }
-};
+
 
 function Concept (aJson) {
     aJson.getNodes = function (){
@@ -498,6 +260,7 @@ var DecoratorManager = {
     }
 };
 
+
 var aCCFactory = new CCFactory();
 var wccList = aCCFactory.initialize();
 
@@ -505,26 +268,3 @@ DecoratorManager.create(wccList);
 
 // initialise the drop-down menus
 Dropdown.initialise();
-
-
-
-
-
-
-
-
-// -------------------------------------------------
-// -----------------   FUNCIONES   -----------------
-// -------------------------------------------------
-function getMLPrices(movieNode) {
-    var data = {
-        url: "https://api.mercadolibre.com/sites/MLA/search?category=MLA13508&q="+movieNode.getTitle(),
-        callback: function (response) {
-            responseAsJson = JSON.parse(response.response);
-            console.log(responseAsJson.results[0].price+"----"+responseAsJson.results[0].currency_id);
-
-        }
-    };
-
-    processRequests(data);    
-}
