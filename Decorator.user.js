@@ -174,6 +174,12 @@ var GuiManager = {
     }
 };
 
+var XpathHelper = {
+    getSnapshots: function(xpath, source){
+        return document.evaluate(xpath, source, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+    }
+};
+
 var WebService = {
     /*
     * FakeService
