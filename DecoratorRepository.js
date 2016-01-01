@@ -1,3 +1,9 @@
+var XpathHelper = {
+    getSnapshots: function(xpath, source){
+        return document.evaluate(xpath, source, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+    }
+};
+
 function processRequests(data) {
     GM_xmlhttpRequest({
         method: "GET",

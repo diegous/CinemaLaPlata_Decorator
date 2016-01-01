@@ -9,8 +9,8 @@
 // @grant       GM_log
 // @grant       GM_getResourceText
 // @grant       GM_addStyle
-// @require     http://code.stephenmorley.org/javascript/touch-friendly-drop-down-menus/Dropdown.js
-// @require     http://diegous.github.io/DecoratorRepository.js
+// @require     https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/Dropdown.js
+// @require     https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/DecoratorRepository.js
 // @resource    DropdownStyle https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/Dropdown.css
 // @resource    DemonstrationStyle https://raw.githubusercontent.com/diegous/CinemaLaPlata_Decorator/master/demonstration.css
 // ==/UserScript==
@@ -174,12 +174,6 @@ var GuiManager = {
     }
 };
 
-var XpathHelper = {
-    getSnapshots: function(xpath, source){
-        return document.evaluate(xpath, source, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-    }
-};
-
 var WebService = {
     /*
     * FakeService
@@ -188,8 +182,6 @@ var WebService = {
         return webserviceData;
     }
 };
-
-
 
 function Concept (aJson) {
     aJson.getNodes = function (){
