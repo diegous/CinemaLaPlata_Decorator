@@ -3,6 +3,7 @@
 // @namespace   info.unlp.edu.ar
 // @description Webpage enhancer (?)
 // @include     http://www.cinemalaplata.com/Cartelera.aspx*
+// @include     http://www.cinesargentinos.com.ar/cartelera*
 // @include     file://*
 // @version     2.113
 // @grant       GM_xmlhttpRequest
@@ -48,7 +49,7 @@ var webserviceData = [
                             "id": 1440000442391,
                             "name": "Menu Location",
                             "tags": ["menu_location"],
-                            "xpath": ".//h4[@class=\"shortcodes-title\"]"
+                            "xpath": ".//h4[@class=\"shortcodes-title\"]/strong"
                         },
                         {
                             "id": 1440000442392,
@@ -60,28 +61,29 @@ var webserviceData = [
                 }
             ]
         },
+        
         {
-            "name": "Cartelera de Cinema La Plata",
-            "urlPattern": "file:///home/enrique/git/CinemaLaPlata_Decorator/page.html",
+            "name": "Cartelera de Cines Arentinos",
+            "urlPattern": "http://www.cinesargentinos.com.ar/cartelera/",
             "concepts": [
                 {
                     "id": 1440162653658,
                     "name": "Movie",
                     "tags": ["movie"],
-                    "xpath": "//div[@class=\"page-container singlepost\"]",
+                    "xpath": "//div[@class=\"texto\"]/ul/li/h3/a",
                     "mainProperty": "0",
                     "properties": [
                         {
                             "id": 1440000442391,
                             "name": "Menu Location",
                             "tags": ["menu_location"],
-                            "xpath": ".//h4[@class=\"shortcodes-title\"]"
+                            "xpath": "."
                         },
                         {
                             "id": 1440000442392,
                             "name": "Title",
                             "tags": ["title"],
-                            "xpath": ".//h4[@class=\"shortcodes-title\"]/strong/a/text()"
+                            "xpath": "./text()"
                         }
                     ]
                 }
@@ -170,7 +172,7 @@ var GuiManager = {
         var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
         var mainNode = htmlObjects.snapshotItem(0);
 
-        mainNode.appendChild(contenedorUlMenu);
+        mainNode.parentNode.insertBefore(contenedorUlMenu, mainNode.nextSibling);
     }
 };
 
