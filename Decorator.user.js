@@ -168,11 +168,17 @@ var GuiManager = {
             listaDecoradores.appendChild(submenu);
         }
 
-        var xpath = htmlNode.conceptProperties[0].xpath;
-        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-        var mainNode = htmlObjects.snapshotItem(0);
+        if (htmlNode.conceptProperties) {
+            var xpath = htmlNode.conceptProperties[0].xpath;
+            var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+            var mainNode = htmlObjects.snapshotItem(0);
+            mainNode.parentNode.insertBefore(contenedorUlMenu, mainNode.nextSibling);
+        }else{
+            var range = htmlNode;
+            range.insertNode(contenedorUlMenu);
+        };
 
-        mainNode.parentNode.insertBefore(contenedorUlMenu, mainNode.nextSibling);
+
     }
 };
 
@@ -266,9 +272,7 @@ function decorateSelection() {
             var decorators = DecoratorRepository.getDecoratorsForConcept({name:"Movie"});
             node = window.getSelection().getRangeAt(0);
             node.collapse(false);
-            node.insertNode(el);
             GuiManager.drawMenu(node, decorators);
-            console.info(window.getSelection().toString());
         };
     };
 }
