@@ -22,7 +22,7 @@ var css2 = GM_getResourceText("DemonstrationStyle");
 GM_addStyle(css1);
 GM_addStyle(css2);
 
-// Esto es para que no se ejecute más de una vez al cargar una página 
+// Esto es para que no se ejecute más de una vez al cargar una página
 // http://stackoverflow.com/questions/5876874/why-does-jquery-load-twice-in-my-greasemonkey-script
 if (window.top != window.self){  //-- Don't run on frames or iframes
     return;
@@ -61,7 +61,7 @@ var webserviceData = [
                 }
             ]
         },
-        
+
         {
             "name": "Cartelera de Cines Arentinos",
             "urlPattern": "http://www.cinesargentinos.com.ar/cartelera/",
@@ -260,11 +260,25 @@ var DecoratorManager = {
     }
 };
 
+function decorateSelection() {
+    window.onmouseup = function () {
+        if (window.getSelection().toString()) {
+            var decorators = DecoratorRepository.getDecoratorsForConcept({name:"Movie"});
+            node = window.getSelection().getRangeAt(0);
+            node.collapse(false);
+            node.insertNode(el);
+            GuiManager.drawMenu(node, decorators);
+            console.info(window.getSelection().toString());
+        };
+    };
+}
 
 var aCCFactory = new CCFactory();
 var wccList = aCCFactory.initialize();
 
 DecoratorManager.create(wccList);
+
+decorateSelection();
 
 // initialise the drop-down menus
 Dropdown.initialise();
