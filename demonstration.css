@@ -24,18 +24,18 @@ http://creativecommons.org/publicdomain/zero/1.0/legalcode
   text-align : left;
 }
 
-.dropdown,
-.dropdown ul{
+.dropdown_WebSiteDecorator,
+.dropdown_WebSiteDecorator ul{
   border     : 1px solid rgb(96,144,48);
   background : rgb(128,192,64);
   box-shadow : 0 0 4px rgba(0,0,0,0.25);
 }
 
-.dropdown ul{
+.dropdown_WebSiteDecorator ul{
   left : -1px;
 }
 
-[dir=rtl] .dropdown ul{
+[dir=rtl] .dropdown_WebSiteDecorator ul{
   right : -1px;
 }
 
@@ -43,12 +43,12 @@ http://creativecommons.org/publicdomain/zero/1.0/legalcode
   left : 100%;
 }
 
-.dropdown ul ul,
+.dropdown_WebSiteDecorator ul ul,
 .dropdownVertical ul{
   top : -1px;
 }
 
-.dropdown span{
+.dropdown_WebSiteDecorator span{
   color       : white;
   font-family : 'Patua One',sans-serif;
   line-height : 2em;
@@ -57,30 +57,30 @@ http://creativecommons.org/publicdomain/zero/1.0/legalcode
   transition  : background 0.2s;
 }
 
-.dropdown li:hover > span,
-.dropdown li.dropdownOpen > span{
+.dropdown_WebSiteDecorator li:hover > span,
+.dropdown_WebSiteDecorator li.dropdownOpen > span{
   background-color : rgb(160,208,112);
 }
 
-.dropdown > li > span{
+.dropdown_WebSiteDecorator > li > span{
   padding    : 0 10px 0 10px;
 }
 
-[dir=rtl] .dropdown > li > span{
+[dir=rtl] .dropdown_WebSiteDecorator > li > span{
   padding    : 0 0.5em 0 24px;
 }
 
 .dropdownVertical > li > span,
-.dropdown ul span{
+.dropdown_WebSiteDecorator ul span{
   padding    : 0 26px 0 0.5em;
 }
 
-[dir=rtl] .dropdown ul span{
+[dir=rtl] .dropdown_WebSiteDecorator ul span{
   padding    : 0 0.5em 0 26px;
 }
 
-.dropdown ul ul ul span,
-[dir=rtl] .dropdown ul ul ul span{
+.dropdown_WebSiteDecorator ul ul ul span,
+[dir=rtl] .dropdown_WebSiteDecorator ul ul ul span{
   padding          : 0 0.5em;
   background-image : none;
 }
@@ -106,3 +106,35 @@ http://creativecommons.org/publicdomain/zero/1.0/legalcode
   text-align  : left;
   text-shadow : 0 0 0.125em rgba(0,0,0,0.25);
 }
+
+
+
+/**
+* Selection menu
+**/
+ul.tools {
+    display: none;
+    list-style: none;
+    box-shadow: 0px 0px 4px rgba(0,0,0,.5);
+    border: solid 1px #000;
+    position: absolute;
+    background: #fff;
+}
+
+ul.tools li {
+    display: inline-block;
+    width: 10px;
+    height: 20px;
+    border: solid 1px #000;
+    margin: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+/**
+* Hidden menu
+**/
+#hiddenDropdownMenu {
+    position: absolute;
+    display: none; 
+} 

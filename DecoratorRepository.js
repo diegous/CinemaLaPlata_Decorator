@@ -24,16 +24,6 @@ function appendData(htmlNode, data){
     htmlNode.parentNode.insertBefore(newNode, htmlNode.nextSibling);
 }
 
-aFunction = function(htmlNode){
-    //alert(msg);
-    var a = document.createElement("a");
-    a.href = "www.google.com";
-    a.appendChild(document.createTextNode("Soy un link"));
-    htmlNode.style.color = "blue";
-    htmlNode.parentNode.insertBefore(a, htmlNode.nextSibling);
-    //htmlNode.appendChild(a);
-};
-
 var DecoratorRepository = {
         decorators: [
             {
@@ -44,133 +34,129 @@ var DecoratorRepository = {
                         functions: [
                             {
                                 description: "Puntaje de IMDb" ,
-                                method : function imdbRating(htmlNode){
-                                    var actionFunction = function(){
-                                        appendData(htmlNode, document.createTextNode("Puntaje IMDB: "+htmlNode.conceptImdbData.imdbRating));
+                                method : function (htmlNode){
+                                    var actionFunction = function(jsonResponse){
+                                        appendData(htmlNode, document.createTextNode("Puntaje IMDB: "+jsonResponse.imdbRating));
                                     }
 
+                                    var xpath = htmlNode.conceptProperties[1].xpath;
+                                    var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+                                    var title = htmlObjects.snapshotItem(0).data;
+
+                                    processRequests(this.findImdbId(title, actionFunction));
+                                },
+                                selectedText: function (textSelection){
+                                    var appendToSelectedText = function(jsonResponse){
+                                        var span = document.createElement("span");
+                                        span.textContent = "("+jsonResponse.imdbRating+")";
+
+                                        newTextNode = textSelection.focusNode.splitText(textSelection.focusOffset);
+                                        newTextNode.parentElement.insertBefore(span, newTextNode)
+                                    }
+
+                                    processRequests( this.findImdbId(textSelection.text, appendToSelectedText) );
+                                },
+                                findImdbId: function(title, callbackDecorator){
                                     var getImdbData = function(movieID){
                                         return {
                                             url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
                                             callback: function(response){
                                                 var jsonResponse = JSON.parse(response.responseText);
 
-                                                htmlNode.conceptImdbData = jsonResponse;
-                                                actionFunction();
+                                                callbackDecorator(jsonResponse);
                                             }
                                         }
                                     }
+                                    return {
+                                        url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
+                                        callback: function (response) {
+                                            // Obetner el ID con XPath
+                                            var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
+                                            var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                                            var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
 
-                                    var findImdbId = function(title){
-                                        return {
-                                            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
-                                            callback: function (response) {
-                                                // Obetner el ID con XPath
-                                                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-                                                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                                                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
-
-                                                processRequests(getImdbData(movieID));
-                                            }
+                                            processRequests(getImdbData(movieID));
                                         }
-                                    }
-                                    
-                                    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-                                        actionFunction();
-                                    } else {
-                                        var xpath = htmlNode.conceptProperties[1].xpath;
-                                        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-                                        var title = htmlObjects.snapshotItem(0).data;
-
-                                        processRequests(findImdbId(title));
                                     }
                                 }
                             },
                             {
                                 description: "Actores",
-                                method : function imdbActors(htmlNode){
-                                    var actionFunction = function(){
-                                        appendData(htmlNode, document.createTextNode("Actores: "+htmlNode.conceptImdbData.Actors));
+                                method : function (htmlNode){
+                                    var actionFunction = function(jsonResponse){
+                                        appendData(htmlNode, document.createTextNode("Actores: "+jsonResponse.Actors));
                                     }
 
+                                    var xpath = htmlNode.conceptProperties[1].xpath;
+                                    var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+                                    var title = htmlObjects.snapshotItem(0).data;
+
+                                    processRequests(this.findImdbId(title, actionFunction));
+                                },
+                                selectedText: function (aText){
+                                    processRequests(findImdbId(aText, {}));
+                                },
+                                findImdbId: function(title, callbackDecorator){
                                     var getImdbData = function(movieID){
                                         return {
                                             url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
                                             callback: function(response){
                                                 var jsonResponse = JSON.parse(response.responseText);
 
-                                                htmlNode.conceptImdbData = jsonResponse;
-                                                actionFunction();
+                                                callbackDecorator(jsonResponse);
                                             }
                                         }
                                     }
+                                    return {
+                                        url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
+                                        callback: function (response) {
+                                            // Obetner el ID con XPath
+                                            var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
+                                            var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                                            var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
 
-                                    var findImdbId = function(title){
-                                        return {
-                                            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
-                                            callback: function (response) {
-                                                // Obetner el ID con XPath
-                                                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-                                                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                                                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
-
-                                                processRequests(getImdbData(movieID));
-                                            }
+                                            processRequests(getImdbData(movieID));
                                         }
-                                    }
-                                    
-                                    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-                                        actionFunction();
-                                    } else {
-                                        var xpath = htmlNode.conceptProperties[1].xpath;
-                                        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-                                        var title = htmlObjects.snapshotItem(0).data;
-
-                                        processRequests(findImdbId(title));
                                     }
                                 }
                             },
                             {
                                 description: "Título Internacional",
                                 method : function imdbInternationalTitle(htmlNode){
-                                    var actionFunction = function(){
-                                        appendData(htmlNode, document.createTextNode("Título Internacional: "+htmlNode.conceptImdbData.Title));
+                                    var actionFunction = function(jsonResponse){
+                                        appendData(htmlNode, document.createTextNode("Título Internacional: "+jsonResponse.Title));
                                     }
 
+                                    var xpath = htmlNode.conceptProperties[1].xpath;
+                                    var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+                                    var title = htmlObjects.snapshotItem(0).data;
+
+                                    processRequests(this.findImdbId(title, actionFunction));
+                                },
+                                selectedText: function (aText){
+                                    processRequests(this.findImdbId(aText, {}));
+                                },
+                                findImdbId: function(title, callbackDecorator){
                                     var getImdbData = function(movieID){
                                         return {
                                             url: 'http://www.omdbapi.com/?i='+movieID+'&plot=short&r=json',
                                             callback: function(response){
                                                 var jsonResponse = JSON.parse(response.responseText);
 
-                                                htmlNode.conceptImdbData = jsonResponse;
-                                                actionFunction();
+                                                callbackDecorator(jsonResponse);
                                             }
                                         }
                                     }
+                                    return {
+                                        url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
+                                        callback: function (response) {
+                                            // Obetner el ID con XPath
+                                            var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
+                                            var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                                            var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
 
-                                    var findImdbId = function(title){
-                                        return {
-                                            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
-                                            callback: function (response) {
-                                                // Obetner el ID con XPath
-                                                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-                                                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                                                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
-
-                                                processRequests(getImdbData(movieID));
-                                            }
+                                            processRequests(getImdbData(movieID));
                                         }
-                                    }
-                                    
-                                    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-                                        actionFunction();
-                                    } else {
-                                        var xpath = htmlNode.conceptProperties[1].xpath;
-                                        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-                                        var title = htmlObjects.snapshotItem(0).data;
-
-                                        processRequests(findImdbId(title));
                                     }
                                 }
                             }
@@ -184,7 +170,21 @@ var DecoratorRepository = {
                         functions: [
                             {
                                 description: "Buscar Video",
-                                method : function trailerAddict(htmlNode){
+                                method : function (htmlNode){
+                                    var decoratePageConcept = function(newNode){
+                                        appendData(htmlNode, newNode);
+                                    }
+
+                                    var xpath = htmlNode.conceptProperties[1].xpath;
+                                    var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+                                    var title = htmlObjects.snapshotItem(0).data;
+
+                                    processRequests(this.findImdbId(title, decoratePageConcept));
+                                },
+                                selectedText: function (aText){
+                                    processRequests(this.findImdbId(aText, callbackDecorator));
+                                },
+                                findImdbId: function(title, callbackDecorator){
                                     var getTrailer = function(movieID){
                                         return {
                                             url: 'http://api.traileraddict.com/?imdb='+movieID.slice(2),
@@ -198,43 +198,28 @@ var DecoratorRepository = {
                                                 newNode.setAttribute("height", "270");
                                                 newNode.setAttribute("width", "480");
 
-                                                appendData(htmlNode, newNode);
+                                                callbackDecorator(newNode);
                                             }
                                         }
                                     }
 
-                                    var findImdbId = function(title){
-                                        return {
-                                            url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
-                                            callback: function (response) {
-                                                // Obetner el ID con XPath
-                                                var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
-                                                var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-                                                var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
+                                    return {
+                                        url: 'http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q='+title,
+                                        callback: function (response) {
+                                            // Obetner el ID con XPath
+                                            var responseXML = new DOMParser().parseFromString(response.responseText, "text/html");
+                                            var resultsIDs = responseXML.evaluate('//td[@class="result_text"]/a/@href', responseXML, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                                            var movieID = resultsIDs.snapshotItem(0).value.substring(7,16);
 
-                                                processRequests(getTrailer(movieID));
-                                            }
+                                            processRequests(getTrailer(movieID));
                                         }
                                     }
-                                    
-                                    if (typeof (htmlNode.conceptImdbData) !== "undefined"){
-                                        processRequests(getTrailer(htmlNode.conceptImdbData.imdbID));
-                                    } else {
-                                        var xpath = htmlNode.conceptProperties[1].xpath;
-                                        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-                                        var title = htmlObjects.snapshotItem(0).data;
-
-                                        processRequests(findImdbId(title));
-                                    }
-                                }
+                                },
+                                
                             }
                         ]
                     }
                 ]
-            },
-            {
-                type: "song",
-                elements: []
             }
         ],
         getDecoratorsForConcept: function (aConcept) {
@@ -243,5 +228,8 @@ var DecoratorRepository = {
                     return this.decorators[i].elements;
                 }
             }
+        },
+        getAllDecorators: function () {
+            return this.decorators;
         }
     };

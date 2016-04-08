@@ -2,9 +2,7 @@
 // @name        Decorator
 // @namespace   info.unlp.edu.ar
 // @description Webpage enhancer (?)
-// @include     http://www.cinemalaplata.com/Cartelera.aspx*
-// @include     http://www.cinesargentinos.com.ar/cartelera*
-// @include     file://*
+// @include     *
 // @version     2.113
 // @grant       GM_xmlhttpRequest
 // @grant       GM_log
@@ -61,7 +59,6 @@ var webserviceData = [
                 }
             ]
         },
-
         {
             "name": "Cartelera de Cines Arentinos",
             "urlPattern": "http://www.cinesargentinos.com.ar/cartelera/",
@@ -118,18 +115,20 @@ var webserviceData = [
 
 
 var GuiManager = {
-    drawSubmenuItem: function(item, htmlNode){
-        var listItem = document.createElement("li");
+    // Botón para función de decorator 
+    drawSubmenuItem: function(item, decoratorParameter, functionName){
+        var li = document.createElement("li");
 
         var span = document.createElement("span");
-        listItem.appendChild(span);
+        li.appendChild(span);
         span.appendChild(document.createTextNode(item.description));
-        span.onclick = function(){item.method(htmlNode);};
+        span.onclick = function(){item[functionName](decoratorParameter);};
 
-        return listItem;
+        return li;
     },
 
-    drawSubmenu: function(decorator, htmlNode){
+    // Submenu para funciones de decorador
+    drawSubmenu: function(decorator, decoratorParameter, functionName){
         var subMenuItem = document.createElement("li");
 
         var span = document.createElement("span");
@@ -138,19 +137,38 @@ var GuiManager = {
 
         var listaMetodosDecoradores = document.createElement("ul");
         subMenuItem.appendChild(listaMetodosDecoradores);
-
         for (var aFunction of decorator.functions){
             // aFunction.drawSubmenuItem(aFunction, htmlNode);
-            var nodoFuncion = this.drawSubmenuItem(aFunction, htmlNode);
+            var nodoFuncion = this.drawSubmenuItem(aFunction, decoratorParameter, functionName);
             listaMetodosDecoradores.appendChild(nodoFuncion);
         }
 
         return subMenuItem;
     },
 
-    drawMenu: function(htmlNode, decoratorList){
+    // Submenu para decoradores para concepto
+    drawConceptsSubmenu: function(concept, selectedText, functionName){
+        var subMenuItem = document.createElement("li");
+
+        var span = document.createElement("span");
+        subMenuItem.appendChild(span);
+        span.appendChild(document.createTextNode(concept.type));
+
+        var listaMetodosDecoradores = document.createElement("ul");
+        subMenuItem.appendChild(listaMetodosDecoradores);
+        
+        for (var decorator of concept.elements){
+            var submenu = this.drawSubmenu(decorator, selectedText, functionName);
+            listaMetodosDecoradores.appendChild(submenu);
+        }
+
+        return subMenuItem;
+    },
+
+    // Botón de Menu para todos los conceptos (texto seleccionado)
+    drawMenuForAllConcepts: function(conceptsList, decoratorParameter){
         var contenedorUlMenu = document.createElement("ul");
-        contenedorUlMenu.className = "dropdown";
+        contenedorUlMenu.className = "dropdown_WebSiteDecorator";
 
         var contenedorLiMenu = document.createElement("li");
         contenedorUlMenu.appendChild(contenedorLiMenu);
@@ -162,24 +180,43 @@ var GuiManager = {
         var listaDecoradores = document.createElement("ul");
         contenedorLiMenu.appendChild(listaDecoradores);
 
-        for (var decorator of decoratorList){
-            // decorator.drawSubmenu(htmlNode);
-            var submenu = this.drawSubmenu(decorator, htmlNode);
+        var functionName = "selectedText";
+        
+        for (var concept of conceptsList){
+            var submenu = this.drawConceptsSubmenu(concept, decoratorParameter, functionName);
             listaDecoradores.appendChild(submenu);
         }
 
-        if (htmlNode.conceptProperties) {
-            var xpath = htmlNode.conceptProperties[0].xpath;
-            var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
-            var mainNode = htmlObjects.snapshotItem(0);
-            mainNode.parentNode.insertBefore(contenedorUlMenu, mainNode.nextSibling);
-        }else{
-            var range = htmlNode;
-            range.insertNode(contenedorUlMenu);
-        };
+        return contenedorUlMenu;
+    },
 
+    // Botón de Menu para un solo concepto
+    drawMenu: function(htmlNode, decoratorList){
+        var contenedorUlMenu = document.createElement("ul");
+        contenedorUlMenu.className = "dropdown_WebSiteDecorator";
 
-    }
+        var contenedorLiMenu = document.createElement("li");
+        contenedorUlMenu.appendChild(contenedorLiMenu);
+
+        var spanMenu = document.createElement("span");
+        contenedorLiMenu.appendChild(spanMenu);
+        spanMenu.appendChild(document.createTextNode("Menu"));
+
+        var listaDecoradores = document.createElement("ul");
+        contenedorLiMenu.appendChild(listaDecoradores);
+
+        var functionName = "method";
+
+        for (var decorator of decoratorList){
+            var submenu = this.drawSubmenu(decorator, htmlNode, functionName);
+            listaDecoradores.appendChild(submenu);
+        }
+
+        var xpath = htmlNode.conceptProperties[0].xpath;
+        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+        var mainNode = htmlObjects.snapshotItem(0);
+        mainNode.parentNode.insertBefore(contenedorUlMenu, mainNode.nextSibling);
+    },
 };
 
 var XpathHelper = {
@@ -266,13 +303,37 @@ var DecoratorManager = {
     }
 };
 
+var pageX, pageY;
+var selectedText = {text:"", focusNode: "", focusOffset: ""};
+
 function decorateSelection() {
+    // crear menu escondido para cuando haya selección
+    var allConcepts = DecoratorRepository.getAllDecorators();
+
+    var hiddenMenu = GuiManager.drawMenuForAllConcepts(allConcepts, selectedText);
+    hiddenMenu.style.display = "none"; 
+    hiddenMenu.id = "hiddenDropdownMenu";
+
+    var bodyElement = document.getElementsByTagName("body")[0];
+    bodyElement.appendChild(hiddenMenu);
+
+    window.onmousedown = function (e) {
+        pageX = e.pageX;
+        pageY = e.pageY;
+    };
+
     window.onmouseup = function () {
-        if (window.getSelection().toString()) {
-            var decorators = DecoratorRepository.getDecoratorsForConcept({name:"Movie"});
-            node = window.getSelection().getRangeAt(0);
-            node.collapse(false);
-            GuiManager.drawMenu(node, decorators);
+        hiddenMenu = document.getElementById('hiddenDropdownMenu');
+        
+        if (window.getSelection().toString() != "") {
+            selectedText.text = window.getSelection().toString();
+            selectedText.focusNode = window.getSelection().focusNode;
+            selectedText.focusOffset = window.getSelection().focusOffset;
+            hiddenMenu.style.display = "block";
+            hiddenMenu.style.left = pageX + "px";
+            hiddenMenu.style.top = (pageY - 35)+"px";
+        } else {
+            hiddenMenu.style.display = "none";                     
         };
     };
 }
