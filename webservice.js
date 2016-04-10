@@ -1,3 +1,12 @@
+var WebService = {
+    /*
+    * FakeService
+    */
+    concepts: function () {
+        return webserviceData;
+    }
+};
+
 var webserviceData = [
         {
             "name": "Cartelera de Cinema La Plata",

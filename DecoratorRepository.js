@@ -34,7 +34,7 @@ var DecoratorRepository = {
                         functions: [
                             {
                                 description: "Puntaje de IMDb" ,
-                                method : function (htmlNode){
+                                decorateConcept : function (htmlNode){
                                     var actionFunction = function(jsonResponse){
                                         appendData(htmlNode, document.createTextNode("Puntaje IMDB: "+jsonResponse.imdbRating));
                                     }
@@ -45,13 +45,13 @@ var DecoratorRepository = {
 
                                     processRequests(this.findImdbId(title, actionFunction));
                                 },
-                                selectedText: function (textSelection){
+                                decorateSelectedText: function (textSelection){
                                     var appendToSelectedText = function(jsonResponse){
                                         var span = document.createElement("span");
                                         span.textContent = "("+jsonResponse.imdbRating+")";
 
                                         newTextNode = textSelection.focusNode.splitText(textSelection.focusOffset);
-                                        newTextNode.parentElement.insertBefore(span, newTextNode)
+                                        newTextNode.parentElement.insertBefore(span, newTextNode);
                                     }
 
                                     processRequests( this.findImdbId(textSelection.text, appendToSelectedText) );
@@ -82,7 +82,7 @@ var DecoratorRepository = {
                             },
                             {
                                 description: "Actores",
-                                method : function (htmlNode){
+                                decorateConcept : function (htmlNode){
                                     var actionFunction = function(jsonResponse){
                                         appendData(htmlNode, document.createTextNode("Actores: "+jsonResponse.Actors));
                                     }
@@ -93,7 +93,7 @@ var DecoratorRepository = {
 
                                     processRequests(this.findImdbId(title, actionFunction));
                                 },
-                                selectedText: function (aText){
+                                decorateSelectedText: function (aText){
                                     processRequests(findImdbId(aText, {}));
                                 },
                                 findImdbId: function(title, callbackDecorator){
@@ -122,7 +122,7 @@ var DecoratorRepository = {
                             },
                             {
                                 description: "Título Internacional",
-                                method : function imdbInternationalTitle(htmlNode){
+                                decorateConcept : function imdbInternationalTitle(htmlNode){
                                     var actionFunction = function(jsonResponse){
                                         appendData(htmlNode, document.createTextNode("Título Internacional: "+jsonResponse.Title));
                                     }
@@ -133,7 +133,7 @@ var DecoratorRepository = {
 
                                     processRequests(this.findImdbId(title, actionFunction));
                                 },
-                                selectedText: function (aText){
+                                decorateSelectedText: function (aText){
                                     processRequests(this.findImdbId(aText, {}));
                                 },
                                 findImdbId: function(title, callbackDecorator){
@@ -170,7 +170,7 @@ var DecoratorRepository = {
                         functions: [
                             {
                                 description: "Buscar Video",
-                                method : function (htmlNode){
+                                decorateConcept : function (htmlNode){
                                     var decoratePageConcept = function(newNode){
                                         appendData(htmlNode, newNode);
                                     }
@@ -181,7 +181,7 @@ var DecoratorRepository = {
 
                                     processRequests(this.findImdbId(title, decoratePageConcept));
                                 },
-                                selectedText: function (aText){
+                                decorateSelectedText: function (aText){
                                     processRequests(this.findImdbId(aText, callbackDecorator));
                                 },
                                 findImdbId: function(title, callbackDecorator){
