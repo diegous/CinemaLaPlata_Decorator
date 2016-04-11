@@ -17,11 +17,21 @@ function processRequests(data) {
     });
 }
 
-function appendData(htmlNode, data){
+function decorateConceptHelper(htmlNode, data){
     var newNode = document.createElement("div");
     newNode.appendChild(data);
 
     htmlNode.parentNode.insertBefore(newNode, htmlNode.nextSibling);
+}
+
+function decorateSelectionHelper(decorationNode, textSelection){
+    var span = document.createElement("span");
+    span.appendChild(document.createTextNode("("));
+    span.appendChild(decorationNode);
+    span.appendChild(document.createTextNode(")"));
+
+    newTextNode = textSelection.focusNode.splitText(textSelection.focusOffset);
+    newTextNode.parentElement.insertBefore(span, newTextNode);
 }
 
 var DecoratorRepository = {
@@ -36,7 +46,7 @@ var DecoratorRepository = {
                                 description: "Puntaje de IMDb" ,
                                 decorateConcept : function (htmlNode){
                                     var actionFunction = function(jsonResponse){
-                                        appendData(htmlNode, document.createTextNode("Puntaje IMDB: "+jsonResponse.imdbRating));
+                                        decorateConceptHelper(htmlNode, document.createTextNode("Puntaje IMDB: "+jsonResponse.imdbRating));
                                     }
 
                                     var xpath = htmlNode.conceptProperties[1].xpath;
@@ -46,15 +56,11 @@ var DecoratorRepository = {
                                     processRequests(this.findImdbId(title, actionFunction));
                                 },
                                 decorateSelectedText: function (textSelection){
-                                    var appendToSelectedText = function(jsonResponse){
-                                        var span = document.createElement("span");
-                                        span.textContent = "("+jsonResponse.imdbRating+")";
-
-                                        newTextNode = textSelection.focusNode.splitText(textSelection.focusOffset);
-                                        newTextNode.parentElement.insertBefore(span, newTextNode);
+                                    var onCallback = function(jsonResponse){
+                                        decorateSelectionHelper(document.createTextNode(jsonResponse.imdbRating), textSelection);
                                     }
 
-                                    processRequests( this.findImdbId(textSelection.text, appendToSelectedText) );
+                                    processRequests( this.findImdbId(textSelection.text, onCallback) );
                                 },
                                 findImdbId: function(title, callbackDecorator){
                                     var getImdbData = function(movieID){
@@ -84,7 +90,7 @@ var DecoratorRepository = {
                                 description: "Actores",
                                 decorateConcept : function (htmlNode){
                                     var actionFunction = function(jsonResponse){
-                                        appendData(htmlNode, document.createTextNode("Actores: "+jsonResponse.Actors));
+                                        decorateConceptHelper(htmlNode, document.createTextNode("Actores: "+jsonResponse.Actors));
                                     }
 
                                     var xpath = htmlNode.conceptProperties[1].xpath;
@@ -93,8 +99,12 @@ var DecoratorRepository = {
 
                                     processRequests(this.findImdbId(title, actionFunction));
                                 },
-                                decorateSelectedText: function (aText){
-                                    processRequests(findImdbId(aText, {}));
+                                decorateSelectedText: function (textSelection){
+                                    var onCallback = function(jsonResponse){
+                                        decorateSelectionHelper(document.createTextNode(jsonResponse.Actors), textSelection);
+                                    }
+
+                                    processRequests( this.findImdbId(textSelection.text, onCallback) );
                                 },
                                 findImdbId: function(title, callbackDecorator){
                                     var getImdbData = function(movieID){
@@ -124,7 +134,7 @@ var DecoratorRepository = {
                                 description: "Título Internacional",
                                 decorateConcept : function imdbInternationalTitle(htmlNode){
                                     var actionFunction = function(jsonResponse){
-                                        appendData(htmlNode, document.createTextNode("Título Internacional: "+jsonResponse.Title));
+                                        decorateConceptHelper(htmlNode, document.createTextNode("Título Internacional: "+jsonResponse.Title));
                                     }
 
                                     var xpath = htmlNode.conceptProperties[1].xpath;
@@ -133,8 +143,12 @@ var DecoratorRepository = {
 
                                     processRequests(this.findImdbId(title, actionFunction));
                                 },
-                                decorateSelectedText: function (aText){
-                                    processRequests(this.findImdbId(aText, {}));
+                                decorateSelectedText: function (textSelection){
+                                    var onCallback = function(jsonResponse){
+                                        decorateSelectionHelper(document.createTextNode(jsonResponse.Title), textSelection);
+                                    }
+
+                                    processRequests( this.findImdbId(textSelection.text, onCallback) );
                                 },
                                 findImdbId: function(title, callbackDecorator){
                                     var getImdbData = function(movieID){
@@ -172,7 +186,7 @@ var DecoratorRepository = {
                                 description: "Buscar Video",
                                 decorateConcept : function (htmlNode){
                                     var decoratePageConcept = function(newNode){
-                                        appendData(htmlNode, newNode);
+                                        decorateConceptHelper(htmlNode, newNode);
                                     }
 
                                     var xpath = htmlNode.conceptProperties[1].xpath;
@@ -181,8 +195,12 @@ var DecoratorRepository = {
 
                                     processRequests(this.findImdbId(title, decoratePageConcept));
                                 },
-                                decorateSelectedText: function (aText){
-                                    processRequests(this.findImdbId(aText, callbackDecorator));
+                                decorateSelectedText: function (textSelection){
+                                    var onCallback = function(newNode){
+                                        decorateSelectionHelper(newNode, textSelection);
+                                    }
+
+                                    processRequests( this.findImdbId(textSelection.text, onCallback) );
                                 },
                                 findImdbId: function(title, callbackDecorator){
                                     var getTrailer = function(movieID){
