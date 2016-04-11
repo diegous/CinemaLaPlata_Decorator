@@ -2,11 +2,8 @@
 var GuiManager = {
     // Botón para función de decorator 
     drawSubmenuItem: function(item, decoratorParameter, functionToCall){
-        var li = document.createElement("li");
-
-        var span = document.createElement("span");
-        li.appendChild(span);
-        span.appendChild(document.createTextNode(item.description));
+        var span = createHTMLHelper({elem:"span",appendChild:document.createTextNode(item.description)})
+        var li = createHTMLHelper({elem:"li", appendChild:span})
         span.onclick = function(){item[functionToCall](decoratorParameter);};
 
         return li;
@@ -14,14 +11,10 @@ var GuiManager = {
 
     // Submenu para funciones de decorador
     drawSubmenu: function(decorator, decoratorParameter, functionToCall){
-        var li = document.createElement("li");
 
-        var span = document.createElement("span");
-        li.appendChild(span);
-        span.appendChild(document.createTextNode(decorator.name));
-
-        var decoratorMethodsList = document.createElement("ul");
-        li.appendChild(decoratorMethodsList);
+        var span = createHTMLHelper({elem:"span",appendChild:document.createTextNode(decorator.name)});
+        var li = createHTMLHelper({elem:"li",appendChild:span});
+        var decoratorMethodsList = createHTMLHelper({elem:"ul",selfAppend:li});
 
         for (var aFunction of decorator.functions){
             var nodoFuncion = this.drawSubmenuItem(aFunction, decoratorParameter, functionToCall);
@@ -33,13 +26,11 @@ var GuiManager = {
 
     // Submenu para decoradores para concepto
     drawConceptsSubmenu: function(concept, selectedText, functionToCall){
-        var li = document.createElement("li");
+        var span = createHTMLHelper({elem:"span",appendChild:document.createTextNode(concept.type)});
+        var decoratorMethodsList = createHTMLHelper({elem:"ul"});
 
-        var span = document.createElement("span");
-        li.appendChild(span);
-        span.appendChild(document.createTextNode(concept.type));
-
-        var decoratorMethodsList = document.createElement("ul");
+        //Revisar de implementar multiples elementos para appendear en el createHTMLHelper
+        var li = createHTMLHelper({elem:"li",appendChild:span});
         li.appendChild(decoratorMethodsList);
         
         for (var decorator of concept.elements){
@@ -52,19 +43,14 @@ var GuiManager = {
 
     // Botón de Menu para todos los conceptos (texto seleccionado)
     drawMenuForAllConcepts: function(conceptsList, decoratorParameter){
-        var ul = document.createElement("ul");
-        ul.className = "dropdown_WebSiteDecorator";
-
-        var li = document.createElement("li");
-        ul.appendChild(li);
-
-        var span = document.createElement("span");
-        li.appendChild(span);
-        span.appendChild(document.createTextNode("Menu"));
-
-        var decoratorList = document.createElement("ul");
-        li.appendChild(decoratorList);
         
+        var span = createHTMLHelper({elem:"span",appendChild:document.createTextNode("Menu")});
+        var li = createHTMLHelper({elem:"li", appendChild:span});
+        var ul = createHTMLHelper({elem:"ul", appendChild:li, className:"dropdown_WebSiteDecorator"});
+         
+        var decoratorList = createHTMLHelper({elem:"ul", selfAppend:li});
+        
+        //Revisar de implementar multiples elementos para appendear en el createHTMLHelper
         for (var concept of conceptsList){
             var submenu = this.drawConceptsSubmenu(concept, decoratorParameter, "decorateSelectedText");
             decoratorList.appendChild(submenu);
@@ -75,19 +61,12 @@ var GuiManager = {
 
     // Botón de Menu para un solo concepto
     drawMenu: function(htmlNode, decoratorList){
-        var ul = document.createElement("ul");
-        ul.className = "dropdown_WebSiteDecorator";
+        var span = createHTMLHelper({elem:"span", appendChild:document.createTextNode("Menu")});
+        var li = createHTMLHelper({elem:"li",appendChild:span});
+        var ul = createHTMLHelper({elem:"ul",appendChild:li,className:"dropdown_WebSiteDecorator"})
+        var list = createHTMLHelper({elem:"ul",selfAppend:li});
 
-        var li = document.createElement("li");
-        ul.appendChild(li);
-
-        var span = document.createElement("span");
-        li.appendChild(span);
-        span.appendChild(document.createTextNode("Menu"));
-
-        var list = document.createElement("ul");
-        li.appendChild(list);
-
+        //Revisar de implementar multiples elementos para appendear en el createHTMLHelper
         for (var decorator of decoratorList){
             var submenu = this.drawSubmenu(decorator, htmlNode, "decorateConcept");
             list.appendChild(submenu);
@@ -99,3 +78,17 @@ var GuiManager = {
         mainNode.parentNode.insertBefore(ul, mainNode.nextSibling);
     },
 };
+
+function createHTMLHelper (data){
+    var elem = document.createElement(data.elem);
+    if (data.className) {
+        elem.className = data.className;
+    }
+    if (data.appendChild) {
+        elem.appendChild(data.appendChild);
+    }
+    if (data.selfAppend) {
+        data.selfAppend.appendChild(elem);
+    }
+    return elem;
+}   
