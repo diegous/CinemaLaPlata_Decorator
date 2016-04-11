@@ -10,7 +10,7 @@ var WebService = {
 var webserviceData = [
         {
             "name": "Cartelera de Cinema La Plata",
-            "urlPattern": "http://www.cinemalaplata.com/Cartelera.aspx",
+            "urlPattern": /cinemalaplata\.com.*\/(C|c)artelera/,
             "concepts": [
                 {
                     "id": 1440162653658,
@@ -37,7 +37,7 @@ var webserviceData = [
         },
         {
             "name": "Cartelera de Cines Arentinos",
-            "urlPattern": "http://www.cinesargentinos.com.ar/cartelera/",
+            "urlPattern": /cinesargentinos\.com.*\/cartelera/,
             "concepts": [
                 {
                     "id": 1440162653658,
@@ -57,27 +57,6 @@ var webserviceData = [
                             "name": "Title",
                             "tags": ["title"],
                             "xpath": "./text()"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Sitio de prueba",
-            "urlPattern": "file:///home/enrique/git/CinemaLaPlata_Decorator/TestMenus2_sin_javascript.html",
-            "concepts": [
-                {
-                    "id": 432432432,
-                    "name": "Movie",
-                    "tags": ["movie", "Peli"],
-                    "xpath": "//li[@class=\"peli\"]",
-                    "mainProperty": "0",
-                    "properties": [
-                        {
-                            "id": 43432,
-                            "name": "Title",
-                            "tags": ["title"],
-                            "xpath": "//p[@class=\"id\"]"
                         }
                     ]
                 }

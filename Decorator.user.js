@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name        Decorator
 // @namespace   info.unlp.edu.ar
 // @description Webpage enhancer (?)
@@ -75,8 +75,9 @@ function CCFactory(){
 
     this.matchWithLocation = function (url) {
         //retorna si la url coincide o aplica para la ubicacion(location.hostname)
-        return this.siteUrl == url;
+        //return this.siteUrl == url;
         //return this.siteUrl.slice(0, url.length) == url;
+        return url.test(this.siteUrl);
     };
 
     this.getJsonConcepts = function () {
