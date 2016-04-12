@@ -53,7 +53,7 @@ function Concept (aJson) {
 
     aJson.createMenu = function () {
         var decorators = DecoratorRepository.getDecoratorsForConcept(this);
-        this.getNodes().forEach(function(node){GuiManager.drawMenu(node, decorators);});
+        this.getNodes().forEach(function(node){GuiManager.drawMenuForAConcept(node, decorators);});
     };
 
     return aJson;
