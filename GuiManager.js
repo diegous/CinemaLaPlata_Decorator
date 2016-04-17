@@ -1,6 +1,6 @@
 
 var GuiManager = {
-    // Submenu
+    // Dibuja submenu
     drawSubmenu: function (text, collection, functionToCall, firstParameter, secondParameter) {
         var span = createHTMLHelper({elem:"span", appendChild:document.createTextNode(text)});
         var list = createHTMLHelper({elem:"ul"});
@@ -14,15 +14,14 @@ var GuiManager = {
         return li;
     },
 
-    // Crea botón "Menu"
+    // Dibuja botón "Menu" y submenus
     drawMenuButton: function (collection, functionToCall, firstParameter, secondParameter) {
         var li = this.drawSubmenu("Menu", collection, functionToCall, firstParameter, secondParameter);
         var ul = createHTMLHelper({elem:"ul", appendChild:li, className:"dropdown_WebSiteDecorator"});
         return ul;
     },
 
-
-    // Botón para función de decorator 
+    // Dibuja botón de menú que llama a una función
     drawSubmenuItem: function (item, decoratorParameter, functionToCall) {
         var span = createHTMLHelper({elem:"span",appendChild:document.createTextNode(item.description)})
         var li = createHTMLHelper({elem:"li", appendChild:span})
@@ -31,27 +30,27 @@ var GuiManager = {
         return li;
     },
 
-    // Submenu para funciones de decorador
+    // Dibuja submenu con funciones de un decorador
     drawConceptDecoratorsSubmenu: function (decorator, decoratorParameter, functionToCall) {
         return this.drawSubmenu(decorator.name, decorator.functions, "drawSubmenuItem", decoratorParameter, functionToCall);
     },
 
-    // Submenu para decoradores para concepto
+    // Dibuja submenu con decoradores para un concepto
     drawConceptsSubmenu: function (concept, selectedText, functionToCall) {
         return this.drawSubmenu(concept.type, concept.elements, "drawConceptDecoratorsSubmenu", selectedText, functionToCall);
     },
 
-    // Botón de Menu para todos los conceptos (texto seleccionado)
+    // Crea menú para texto seleccionado
     drawMenuForAllConcepts: function (conceptsList, decoratorParameter) {
         return this.drawMenuButton(conceptsList, "drawConceptsSubmenu", decoratorParameter, "decorateSelectedText");
     },
 
-    // Botón de Menu para un solo concepto
+    // Crea menú para un Concepto
     drawMenuForAConcept: function (htmlNode, decoratorList) {
         var ul = this.drawMenuButton(decoratorList, "drawConceptDecoratorsSubmenu", htmlNode, "decorateConcept");
 
-        var xpath = htmlNode.conceptProperties[0].xpath;
-        var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
+        var menuXpath = htmlNode.menuLocation;
+        var htmlObjects = XpathHelper.getSnapshots(menuXpath, htmlNode);
         var mainNode = htmlObjects.snapshotItem(0);
         mainNode.parentNode.insertBefore(ul, mainNode.nextSibling);
     },

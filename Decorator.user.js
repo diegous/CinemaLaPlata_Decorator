@@ -44,7 +44,7 @@ function Concept (aJson) {
         for (var i = 0; i < htmlObjects.snapshotLength; i++) {
             var snapItem = htmlObjects.snapshotItem(i);
             snapItem.conceptProperties = this.properties;
-            snapItem.mainProperty = this.mainProperty;
+            snapItem.menuLocation = this.menuLocation;
             htmlNodes.push(snapItem);
         }
 
@@ -69,47 +69,33 @@ function WebsiteConceptCollection(aJson){
     return aJson;
 }
 
-function CCFactory(){
-    this.jsonList = [];
-    this.siteUrl = null;
-
-    this.matchWithLocation = function (url) {
+var ConceptCollectionFactory = {
+    matchWithLocation: function (regex, url) {
         //retorna si la url coincide o aplica para la ubicacion(location.hostname)
-        //return this.siteUrl == url;
-        //return this.siteUrl.slice(0, url.length) == url;
-        return url.test(this.siteUrl);
-    };
-
-    this.getJsonConcepts = function () {
-        this.jsonList = WebService.concepts();
-    };
-
-    this.initialize = function () {
-        this.siteUrl = window.location.href;
-        this.getJsonConcepts();
+        return regex.test(url);
+    },
+    getJsonConcepts: function () {
+        return jsonList = WebService.concepts();
+    },
+    getWccList: function () {
+        var siteUrl = window.location.href;
+        var jsonList = this.getJsonConcepts();
         var wccList = [];
 
-        for (var aJson of this.jsonList) {
-            if (this.matchWithLocation(aJson.urlPattern)) {
+        for (var aJson of jsonList) {
+            if (this.matchWithLocation(aJson.urlPattern, siteUrl)) {
                 wccList.push(WebsiteConceptCollection(aJson));
             }
         }
-
         return wccList;
-    };
-}
+    }
+};
 
 var DecoratorManager = {
     create: function (WCCList){
         WCCList.forEach(function(aWCC){aWCC.createMenu();});
     }
 };
-
-
-
-// ****************************
-// ************main************
-// ****************************
 
 var pageX, pageY;
 var selectedText = {text:"", focusNode: "", focusOffset: ""};
@@ -146,8 +132,11 @@ function decorateSelection() {
     };
 }
 
-var aCCFactory = new CCFactory();
-var wccList = aCCFactory.initialize();
+// ****************************
+// ************main************
+// ****************************
+
+var wccList = ConceptCollectionFactory.getWccList();
 
 DecoratorManager.create(wccList);
 

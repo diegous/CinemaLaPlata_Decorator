@@ -17,14 +17,8 @@ var webserviceData = [
                     "name": "Movie",
                     "tags": ["movie"],
                     "xpath": "//div[@class=\"page-container singlepost\"]",
-                    "mainProperty": "0",
+                    "menuLocation": ".//h4[@class=\"shortcodes-title\"]/strong",
                     "properties": [
-                        {
-                            "id": 1440000442391,
-                            "name": "Menu Location",
-                            "tags": ["menu_location"],
-                            "xpath": ".//h4[@class=\"shortcodes-title\"]/strong"
-                        },
                         {
                             "id": 1440000442392,
                             "name": "Title",
@@ -44,14 +38,8 @@ var webserviceData = [
                     "name": "Movie",
                     "tags": ["movie"],
                     "xpath": "//div[@class=\"texto\"]/ul/li/h3/a",
-                    "mainProperty": "0",
+                    "menuLocation": ".",
                     "properties": [
-                        {
-                            "id": 1440000442391,
-                            "name": "Menu Location",
-                            "tags": ["menu_location"],
-                            "xpath": "."
-                        },
                         {
                             "id": 1440000442392,
                             "name": "Title",

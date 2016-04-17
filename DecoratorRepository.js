@@ -49,7 +49,7 @@ var DecoratorRepository = {
                                         decorateConceptHelper(htmlNode, document.createTextNode("Puntaje IMDB: "+jsonResponse.imdbRating));
                                     }
 
-                                    var xpath = htmlNode.conceptProperties[1].xpath;
+                                    var xpath = htmlNode.conceptProperties[0].xpath;
                                     var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
                                     var title = htmlObjects.snapshotItem(0).data;
 
@@ -93,7 +93,7 @@ var DecoratorRepository = {
                                         decorateConceptHelper(htmlNode, document.createTextNode("Actores: "+jsonResponse.Actors));
                                     }
 
-                                    var xpath = htmlNode.conceptProperties[1].xpath;
+                                    var xpath = htmlNode.conceptProperties[0].xpath;
                                     var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
                                     var title = htmlObjects.snapshotItem(0).data;
 
@@ -137,7 +137,7 @@ var DecoratorRepository = {
                                         decorateConceptHelper(htmlNode, document.createTextNode("Título Internacional: "+jsonResponse.Title));
                                     }
 
-                                    var xpath = htmlNode.conceptProperties[1].xpath;
+                                    var xpath = htmlNode.conceptProperties[0].xpath;
                                     var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
                                     var title = htmlObjects.snapshotItem(0).data;
 
@@ -189,7 +189,7 @@ var DecoratorRepository = {
                                         decorateConceptHelper(htmlNode, newNode);
                                     }
 
-                                    var xpath = htmlNode.conceptProperties[1].xpath;
+                                    var xpath = htmlNode.conceptProperties[0].xpath;
                                     var htmlObjects = XpathHelper.getSnapshots(xpath, htmlNode);
                                     var title = htmlObjects.snapshotItem(0).data;
 
